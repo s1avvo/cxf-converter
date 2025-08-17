@@ -21,11 +21,15 @@ export function Header() {
 	return (
 		<header className="bg-background">
 			<div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
-				<Link href="/">
-					<h1 className="gradient-text text-2xl font-bold">CXF Converter</h1>
+				<Link
+					href="/"
+					className="gradient-text text-2xl font-bold"
+					aria-label="CXF Converter Homepage"
+				>
+					CXF Converter
 				</Link>
 
-				<nav className="hidden md:block">
+				<nav className="hidden md:block" aria-label="Main navigation">
 					<ul className="flex items-baseline space-x-8">
 						{links.map((link) => (
 							<li key={link.href}>

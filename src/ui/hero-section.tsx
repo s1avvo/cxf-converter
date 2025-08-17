@@ -35,12 +35,12 @@ const mockColorResults = {
 
 export function HeroSection() {
 	const [isDragOver, setIsDragOver] = useState(false);
-	const [uploadedFile, setUploadedFile] = useState(false);
+	const [uploadedFile, setUploadedFile] = useState(true);
 
 	return (
 		<section className="bg-background py-20">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div className="mb-12 text-center">
+				<header className="mb-12 text-center">
 					<h1 className="mb-6 text-4xl font-bold md:text-6xl">
 						Professional <span className="gradient-text">CxF Converter</span>
 					</h1>
@@ -48,7 +48,7 @@ export function HeroSection() {
 						Convert CxF files to CMYK, RGB, and HEX formats with precision. Trusted by designers and
 						print professionals worldwide for accurate color conversion.
 					</p>
-				</div>
+				</header>
 
 				<div>
 					{!uploadedFile ? (
@@ -101,15 +101,13 @@ export function HeroSection() {
 								</div>
 							</div>
 
-							<div className="text-center">
-								<p className="text-muted-foreground text-sm">
-									Supported format: <span className="font-medium">.cxf</span> • Converts to:{" "}
-									<span className="font-medium">CMYK, RGB, HEX</span>
-								</p>
-							</div>
+							<p className="text-muted-foreground text-center text-sm">
+								Supported format: <span className="font-medium">.cxf</span> • Converts to:{" "}
+								<span className="font-medium">CMYK, RGB, HEX</span>
+							</p>
 						</div>
 					) : (
-						<div className="space-y-8">
+						<div className="space-y-8 text-center">
 							<div className="mx-auto grid max-w-xl">
 								<div className="bg-muted relative mb-8 flex items-center rounded-lg p-2">
 									<div
@@ -119,35 +117,37 @@ export function HeroSection() {
 									<h4 className="ml-12 text-2xl font-medium">{mockColorResults.name}</h4>
 								</div>
 
-								{mockColorResults.result.map((color, index) => (
-									<div key={index} className="flex items-start">
-										<div className="flex-1 space-y-2">
-											<div className="flex items-end justify-between">
-												<div>
-													<div className="text-muted-foreground text-xs font-normal">
-														{color.space.toUpperCase()}
+								<ul>
+									{mockColorResults.result.map((color, index) => (
+										<li key={index} className="flex items-start">
+											<div className="flex-1 space-y-2">
+												<div className="flex items-end justify-between">
+													<div>
+														<p className="text-muted-foreground text-xs font-normal">
+															{color.space.toUpperCase()}
+														</p>
+														<p className="mt-1 font-mono text-xl font-bold">{color.value}</p>
 													</div>
-													<div className="mt-1 font-mono text-xl font-bold">{color.value}</div>
+													<Button
+														size="sm"
+														variant="ghost"
+														onClick={() => navigator.clipboard.writeText(color.value)}
+														className="h-8 w-8 p-2"
+														aria-label={`Copy ${color.space} value`}
+													>
+														<Copy className="h-4 w-4" />
+													</Button>
 												</div>
-												<Button
-													size="sm"
-													variant="ghost"
-													onClick={() => navigator.clipboard.writeText(color.value)}
-													className="h-8 w-8 p-2"
-												>
-													<Copy className="h-4 w-4" />
-												</Button>
+												<Separator className="my-4" />
 											</div>
-											<Separator className="my-4" />
-										</div>
-									</div>
-								))}
+										</li>
+									))}
+								</ul>
 							</div>
-							<div className="pt-4 text-center">
-								<Button variant="outline" onClick={() => setUploadedFile(false)}>
-									Convert Another File
-								</Button>
-							</div>
+
+							<Button variant="outline" onClick={() => setUploadedFile(false)}>
+								Convert Another File
+							</Button>
 						</div>
 					)}
 				</div>

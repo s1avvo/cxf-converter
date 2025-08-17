@@ -37,17 +37,17 @@ export function FaqSection() {
 	return (
 		<section className="bg-muted py-20">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div className="mb-16 text-center">
+				<header className="mb-16 text-center">
 					<h2 className="text-foreground mb-4 text-3xl font-bold md:text-4xl">
 						Frequently Asked Questions
 					</h2>
 					<p className="text-muted-foreground mx-auto max-w-2xl text-xl">
 						Get answers to common questions about our color conversion service.
 					</p>
-				</div>
+				</header>
 
 				<div className="mx-auto max-w-3xl">
-					<Accordion type="multiple" className="w-full">
+					<Accordion type="multiple">
 						{faqs.map((faq, index) => (
 							<AccordionItem key={index} value={`item-${index}`}>
 								<AccordionTrigger className="text-foreground text-left font-semibold">
