@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { cxfConverter } from "@/actions/colorConverter";
 import { useConverter } from "@/context/convert-provider";
 
-export default function FileUpload() {
+export function FileUpload() {
 	const { setColorResult } = useConverter();
 	const [files, setFiles] = useState<File[]>([]);
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
