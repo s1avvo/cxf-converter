@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { Copy } from "lucide-react";
 import { Button } from "@ui/shadcn/button";
 import { Separator } from "@/ui/shadcn/separator";
-import FileUpload from "@/ui/file-upload";
+import { FileUpload } from "@/ui/file-upload";
+
 import { useConverter } from "@/context/convert-provider";
-import { rgbToHex } from "@/lib/utils";
 
 export function HeroSection() {
 	const { colorResult, setColorResult } = useConverter();
