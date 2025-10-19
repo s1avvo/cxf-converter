@@ -1,5 +1,4 @@
 import { Separator } from "@ui/shadcn/separator";
-import { Button } from "@ui/shadcn/button";
 import Link from "next/link";
 
 const links = [
@@ -43,10 +42,6 @@ export function Header() {
 						))}
 					</ul>
 				</nav>
-
-				<Button className="gradient-primary gradient-primary-hover font-semibold text-white">
-					Start Converting
-				</Button>
 			</div>
 			<Separator />
 		</header>
