@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@ui/header";
 import { Footer } from "@ui/footer";
+import { ConverterProvider } from "@/context/convert-provider";
 
 const dmSans = DM_Sans({
 	subsets: ["latin"],
@@ -24,7 +25,7 @@ export default function RootLayout({
 		<html lang="en" className={`${dmSans.variable} antialiased`}>
 			<body className="font-dm-sans min-h-full flex-col">
 				<Header />
-				{children}
+				<ConverterProvider>{children}</ConverterProvider>
 				<Footer />
 			</body>
 		</html>
