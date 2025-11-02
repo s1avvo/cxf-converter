@@ -1,17 +1,25 @@
 "use server";
 
-import { initialData } from "@/ui/contact-section";
-// import { Resend } from "resend";
+import { Resend } from "resend";
 import z from "zod";
+import { EmailTemplate } from "@/ui/email-template";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const contactFormSchema = z.object({
-	name: z.string("The field is required").min(2, "Name must be at least 2 characters"),
 	email: z.email("Please enter a valid email address").trim().toLowerCase(),
-	message: z
-		.string("The field is required")
-		.min(10, "Message must be at least 10 characters")
-		.max(500, "Message must be shorter than 500 characters."),
 	privacy: z.boolean().refine((val) => val === true, "You must agree to the privacy policy"),
+	results: z
+		.string()
+		.min(1, "Missing conversion data")
+		.refine((val) => {
+			try {
+				const parsed = JSON.parse(val);
+				return Array.isArray(parsed) && parsed.length > 0;
+			} catch {
+				return false;
+			}
+		}, "Invalid conversion results JSON"),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -23,22 +31,31 @@ export type ContactFormState = {
 	message: string;
 };
 
+const initialData: ContactFormData = {
+	email: "",
+	privacy: false,
+	results: "",
+};
+
 export async function submitContactForm(
 	_prevState: ContactFormState,
 	formData: FormData
 ): Promise<ContactFormState> {
-	// if (!process.env.RESEND_API_KEY) {
-	// 	return;
-	// }
-
-	// const resend = new Resend(process.env.RESEND_API_KEY);
-
 	const data = {
-		name: formData.get("name")?.toString() || "",
 		email: formData.get("email")?.toString() || "",
-		message: formData.get("message")?.toString() || "",
 		privacy: formData.get("privacy") === "on" || formData.get("privacy") === "true",
+		results: formData.get("results")?.toString() || "",
 	};
+
+	if (!data.results) {
+		return {
+			success: false,
+			data,
+			errors: undefined,
+			message: "Missing conversion data",
+		};
+	}
+
 	const result = contactFormSchema.safeParse(data);
 
 	if (!result.success) {
@@ -51,23 +68,23 @@ export async function submitContactForm(
 	}
 
 	try {
-		// const { name, email, message } = result.data;
+		const { email, results } = result.data;
 
-		// const { data, error } = await resend.emails.send({
-		// 	from: "you@example.com",
-		// 	to: [`${process.env.EMAIL_TO}`],
-		// 	subject: `Wiadomość od: ${name} <${email}>`,
-		// 	html: `<p>Imię i nazwisko: ${name}</p><p>Email: ${email}</p><p>Wiadomość: ${message}</p>`,
-		// });
+		const res = await resend.emails.send({
+			from: "cxf-converter.app <no-reply@floorballsrem.com>",
+			to: [email],
+			subject: "Your Color Conversion Results",
+			html: EmailTemplate(JSON.parse(results)),
+		});
 
-		// if (error) {
-		// 	return {
-		// 		success: false,
-		// 		data: initialData,
-		// 		errors: undefined,
-		// 		message: error.message,
-		// 	};
-		// }
+		if (res.error) {
+			return {
+				success: false,
+				data: initialData,
+				errors: undefined,
+				message: res.error.message,
+			};
+		}
 
 		return {
 			success: true,
