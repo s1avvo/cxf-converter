@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@ui/shadcn/card";
-import { Upload, Play, CheckCircle, BarChart3, MailCheck } from "lucide-react";
+import { Upload, Play, BarChart3, MailCheck } from "lucide-react";
 
 const steps = [
 	{
