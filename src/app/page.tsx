@@ -8,8 +8,8 @@ export default function Home() {
 		<main className="mx-auto flex w-full flex-1 flex-col">
 			<HeroSection />
 			<HowItWorksSection />
-			<FaqSection />
 			<ContactSection />
+			<FaqSection />
 		</main>
 	);
 }
