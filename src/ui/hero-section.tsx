@@ -18,8 +18,8 @@ export function HeroSection() {
 						Professional <span className="gradient-text">CxF Converter</span>
 					</h1>
 					<p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-xl">
-						Convert CxF files to CMYK, RGB, and HEX formats with precision. Trusted by designers and
-						print professionals worldwide for accurate color conversion.
+						Convert CxF to CMYK, sRGB, OKLab, OKLch and HEX formats for different measurement
+						conditions included in the file
 					</p>
 				</header>
 
