@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@ui/shadcn/card";
-import { Upload, Play, CheckCircle, BarChart3 } from "lucide-react";
+import { Upload, Play, CheckCircle, BarChart3, MailCheck } from "lucide-react";
 
 const steps = [
 	{
@@ -18,20 +18,19 @@ const steps = [
 		gradientClass: "gradient-step-2",
 	},
 	{
-		icon: CheckCircle,
-		title: "Process & Validate",
-		description:
-			"Our advanced algorithms convert your colors while maintaining accuracy and providing validation reports.",
-		color: "text-accent",
-		gradientClass: "gradient-step-3",
-	},
-	{
 		icon: BarChart3,
 		title: "Show Results",
 		description:
 			"View your converted colors in CMYK, RGB, HEX, and LAB formats with visual color swatches.",
 		color: "text-muted-foreground",
 		gradientClass: "gradient-step-4",
+	},
+	{
+		icon: MailCheck,
+		title: "Send Results",
+		description: "Send your converted color data via email or copy/paste it directly from the app.",
+		color: "text-accent",
+		gradientClass: "gradient-step-3",
 	},
 ];
 
