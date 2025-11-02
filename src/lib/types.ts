@@ -2,23 +2,23 @@ export type ReflectanceSpectrum = {
 	"@_ColorSpecification": string;
 	"@_MeasureDate"?: string;
 	"@_Name": string;
-	"@_StartWL": string;
+	"@_StartWL": number;
 	"#text": string;
 };
 
 export type ColorSpecification = {
 	"@_Id": string;
 	"cc:TristimulusSpec": {
-		"cc:Illuminant": "D50" | "D65" | string;
-		"cc:Observer": "2_Degree" | "10_Degree" | string;
+		"cc:Illuminant": string;
+		"cc:Observer": string;
 		"cc:Method"?: string;
 	};
 	"cc:MeasurementSpec"?: {
 		"cc:MeasurementType"?: string;
 		"cc:GeometryChoice"?: any;
 		"cc:WavelengthRange"?: {
-			"@_Increment": string;
-			"@_StartWL": string;
+			"@_Increment": number;
+			"@_StartWL": number;
 		};
 		"cc:CalibrationStandard"?: string;
 		"cc:Aperture"?: string;
@@ -59,4 +59,14 @@ export type CxFFile = {
 			};
 		};
 	};
+};
+
+export type Observers = "2" | "10";
+export type Illuminants = "d50" | "d65";
+
+export type ParsedSpectrum = {
+	id: string;
+	illuminant: Illuminants;
+	observer: Observers;
+	spectrum: number[];
 };
