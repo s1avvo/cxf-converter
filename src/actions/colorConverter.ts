@@ -1,292 +1,283 @@
-import { CxFFile } from "@/lib/types";
-import { parseXML } from "@/lib/utils";
-
-type ILLUMINANT = "d50" | "d65";
-type OBSERVER = "2" | "10";
-type STEP = 5 | 10;
-
-const STDOBSERV: OBSERVER = "2"; // 2 (initial) lub 10
-const REFERENCE_ILLUM: ILLUMINANT = "d50"; // d50 (initial) lub d65
-const SPECTRUM_STEP: STEP = 10; //@TODO 5
-
-// Standard observer (2°) and Illuminant D50
-const STDOBSERV_X2 = [
-	0.0, 0.0, 0.0001299, 0.0004149, 0.001368, 0.004243, 0.01431, 0.04351, 0.13438, 0.2839, 0.34828,
-	0.3362, 0.2908, 0.19536, 0.09564, 0.03201, 0.0049, 0.0093, 0.06327, 0.1655, 0.2904, 0.4334499,
-	0.5945, 0.7621, 0.9163, 1.0263, 1.0622, 1.0026, 0.8544499, 0.6424, 0.4479, 0.2835, 0.1649, 0.0874,
-	0.04677, 0.0227, 0.01135916, 0.005790346, 0.002899327, 0.001439971, 0.0006900786, 0.0003323011,
-	0.0001661505, 0.00008307527, 0.00004150994, 0.00002067383, 0.00001025398, 0.000005085868,
-	0.000002522525, 0.000001251141,
-] as const;
-
-const STDOBSERV_Y2 = [
-	0.0, 0.0, 0.000003917, 0.00001239, 0.000039, 0.00012, 0.000396, 0.00121, 0.004, 0.0116, 0.023,
-	0.038, 0.06, 0.09098, 0.13902, 0.20802, 0.323, 0.503, 0.71, 0.862, 0.954, 0.9949501, 0.995, 0.952,
-	0.87, 0.757, 0.631, 0.503, 0.381, 0.265, 0.175, 0.107, 0.061, 0.032, 0.017, 0.00821, 0.004102,
-	0.002091, 0.001047, 0.00052, 0.0002492, 0.00012, 0.00006, 0.00003, 0.00001499, 0.0000074657,
-	0.0000037029, 0.0000018366, 0.00000091093, 0.00000045181,
-] as const;
-
-const STDOBSERV_Z2 = [
-	0.0, 0.0, 0.0006061, 0.001946, 0.006450001, 0.02005001, 0.06785001, 0.2074, 0.6456, 1.3856,
-	1.74706, 1.77211, 1.6692, 1.28764, 0.8129501, 0.46518, 0.272, 0.1582, 0.07824999, 0.04216, 0.0203,
-	0.008749999, 0.0039, 0.0021, 0.001650001, 0.0011, 0.0008, 0.00034, 0.00019, 0.00004999999,
-	0.00002, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-	0.0,
-] as const;
-
-const STDOBSERV_X10 = [
-	0.0, 0.0, 0.0000001222, 0.0000059586, 0.000159952, 0.0023616, 0.0191097, 0.084736, 0.204492,
-	0.314679, 0.383734, 0.370702, 0.302273, 0.195618, 0.080507, 0.016172, 0.003816, 0.037465,
-	0.117749, 0.236491, 0.376772, 0.529826, 0.705224, 0.878655, 1.01416, 1.11852, 1.12399, 1.03048,
-	0.856297, 0.647467, 0.431567, 0.268329, 0.152568, 0.0812606, 0.0408508, 0.0199413, 0.00957688,
-	0.00455263, 0.00217496, 0.00104476, 0.000508258, 0.000250969, 0.00012639, 0.0000645258,
-	0.0000334117, 0.0000176115, 0.00000941363, 0.00000509347, 0.00000279531, 0.00000155314,
-] as const;
-
-const STDOBSERV_Y10 = [
-	0.0, 0.0, 0.000000013398, 0.0000006511, 0.000017364, 0.0002534, 0.0020044, 0.008756, 0.021391,
-	0.038676, 0.062077, 0.089456, 0.128201, 0.18519, 0.253589, 0.339133, 0.460777, 0.606741, 0.761757,
-	0.875211, 0.961988, 0.991761, 0.99734, 0.955552, 0.868934, 0.777405, 0.658341, 0.527963, 0.398057,
-	0.283493, 0.179828, 0.107633, 0.060281, 0.0318004, 0.0159051, 0.0077488, 0.00371774, 0.00176847,
-	0.00084619, 0.00040741, 0.00019873, 0.000098428, 0.000049737, 0.000025486, 0.000013249,
-	0.0000070128, 0.00000376473, 0.00000204613, 0.00000112809, 0.0000006297,
-] as const;
-
-const STDOBSERV_Z10 = [
-	0.0, 0.0, 0.000000535027, 0.0000261437, 0.000704776, 0.0104822, 0.0860109, 0.389366, 0.972542,
-	1.55348, 1.96728, 1.9948, 1.74537, 1.31756, 0.772125, 0.415254, 0.218502, 0.112044, 0.060709,
-	0.030451, 0.013676, 0.003988, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-	0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-] as const;
-
-const REFERENCE_ILLUM_D50 = [
-	17.92, 20.98, 23.91, 25.89, 24.45, 29.83, 49.25, 56.45, 59.97, 57.76, 74.77, 87.19, 90.56, 91.32,
-	95.07, 91.93, 95.7, 96.59, 97.11, 102.09, 100.75, 102.31, 100.0, 97.74, 98.92, 93.51, 97.71,
-	99.29, 99.07, 95.75, 98.9, 95.71, 98.24, 103.06, 99.19, 87.43, 91.66, 92.94, 76.89, 86.56, 92.63,
-	78.27, 57.72, 82.97, 78.31, 79.59, 73.44, 63.95, 70.81, 74.48,
-] as const;
-
-const REFERENCE_ILLUM_D65 = [
-	39.9, 44.86, 46.59, 51.74, 49.92, 54.6, 82.69, 91.42, 93.37, 86.63, 104.81, 116.96, 117.76,
-	114.82, 115.89, 108.78, 109.33, 107.78, 104.78, 107.68, 104.4, 104.04, 100.0, 96.34, 95.79, 88.69,
-	90.02, 89.61, 87.71, 83.3, 83.72, 80.05, 80.24, 82.3, 78.31, 69.74, 71.63, 74.37, 61.62, 69.91,
-	75.11, 63.61, 46.43, 66.83, 63.4, 64.32, 59.47, 51.97, 57.46, 60.33,
-] as const;
-
-const REF_STDOBSERV_TABLE = {
-	"2": { x: STDOBSERV_X2, y: STDOBSERV_Y2, z: STDOBSERV_Z2 },
-	"10": { x: STDOBSERV_X10, y: STDOBSERV_Y10, z: STDOBSERV_Z10 },
-} as const;
-
-const REF_ILLUM_TABLE = {
-	d50: REFERENCE_ILLUM_D50,
-	d65: REFERENCE_ILLUM_D65,
-} as const;
+import { REF_ILLUM_TABLE, REF_STDOBSERV_TABLE } from "@/lib/constant";
+import type { ParsedSpectrum, CxFFile, Illuminants, Observers } from "@/lib/types";
+import { applyChromaticAdaptation, parseXML } from "@/lib/utils";
+import { cbrt, dotMultiply, floor, multiply, sqrt, sum, atan2, max, min, round } from "mathjs";
 
 // Normalizaca danych wejściowych do pełnego spektrum 340–830nm co 10nm
-function normalizeSpectrum(values: number[], startWL: number, step: STEP) {
-	if (!Array.isArray(values) || values.length === 0) {
-		throw new Error("Tablica wartości spektralnych nie może być pusta.");
+function normalizeSpectrum(
+	values: number[],
+	startWL: number | undefined,
+	step: number | undefined
+) {
+	if (!values || values.length === 0) {
+		throw new Error("Brak danych spektrum do normalizacji.");
 	}
 
-	if (typeof startWL !== "number" || startWL < 340 || startWL > 830) {
+	if (!startWL || startWL < 340 || startWL > 830) {
 		throw new Error("StartWL musi być liczbą z zakresu 340-830.");
 	}
 
-	const length = values.length;
-	const normalized = new Array(50).fill(0);
-	const offset = Math.round((startWL - 340) / step);
-
-	if (offset < 0 || offset + length > 50) {
-		throw new Error("Spektrum wykracza poza obsługiwany zakres 340-830.");
+	if (!step) {
+		throw new Error("Step musi być zdefiniowany.");
 	}
 
-	for (let i = 0; i < length; i++) {
-		normalized[offset + i] = values[i];
+	const totalPoints = floor((830 - 340) / step) + 1;
+	const normalized = new Array(totalPoints);
+
+	// Oblicz indeks początkowy w znormalizowanym widmie
+	const offset = round((startWL - 340) / step);
+	const endIndex = offset + values.length - 1;
+
+	for (let i = 0; i < totalPoints; i++) {
+		if (i < offset) {
+			// przed początkiem danych – użyj pierwszej wartości
+			normalized[i] = values[0];
+		} else if (i > endIndex) {
+			// za końcem danych – użyj ostatniej wartości
+			normalized[i] = values[values.length - 1];
+		} else {
+			// wewnątrz zakresu – przepisz dane
+			normalized[i] = values[i - offset];
+		}
 	}
 
 	return normalized;
 }
 
-// Konwersja spektrum do XYZ | illuminant="d50" lub "d65" | observer="2" lub "10"
-function spectralToXYZ(sample: number[], illuminant: ILLUMINANT, observer: OBSERVER) {
-	if (!REF_ILLUM_TABLE[illuminant]) {
-		throw new Error('Nieznany illuminant. Użyj "d50" lub "d65".');
-	}
-
-	if (!REF_STDOBSERV_TABLE[observer]) {
-		throw new Error('Nieznany standard observer. Użyj "2" lub "10".');
-	}
-
-	// Illuminant standard
-	const referenceIllum = REF_ILLUM_TABLE[illuminant];
-
-	// Rozkład X, Y, Z widma dla wybranego standardu (stałe)
-	const stdObsX = REF_STDOBSERV_TABLE[observer].x;
-	const stdObsY = REF_STDOBSERV_TABLE[observer].y;
-	const stdObsZ = REF_STDOBSERV_TABLE[observer].z;
-
-	// Normalizacja danych wejściiowych
-
-	// Denominator jest stały dla współrzędnych X, Y i Z. Oblicz go raz i użyj ponownie.
-	const denom = stdObsY.map((v, i) => v * referenceIllum[i]!);
-
-	// Tablica mnożona przez wybrane źródła światła
-	const sampleByRefIllum = sample.map((v, i) => v * referenceIllum[i]!);
-
-	const xNumerator = sampleByRefIllum.map((v, i) => v * stdObsX[i]!);
-	const yNumerator = sampleByRefIllum.map((v, i) => v * stdObsY[i]!);
-	const zNumerator = sampleByRefIllum.map((v, i) => v * stdObsZ[i]!);
-
-	const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
-
-	const denomSum = sum(denom);
-
-	if (denomSum === 0) {
-		throw new Error("Dzielenie przez zero w normalizacji XYZ, sprawdź dane wejściowe.");
-	}
-
-	return {
-		x: parseFloat((sum(xNumerator) / denomSum).toFixed(4)),
-		y: parseFloat((sum(yNumerator) / denomSum).toFixed(4)),
-		z: parseFloat((sum(zNumerator) / denomSum).toFixed(4)),
-	};
-}
-
-// wyciągniecie z przkazanego json sepctrum lub Lab i przkształcenie w XYZ
-function parseCxFtoXYZ(cxfFile: string) {
+export function getSpectrumFromCxF(cxfFile: string) {
 	const cxf = parseXML<CxFFile>(cxfFile);
-	const reflectanceCxF =
-		cxf["cc:CxF"]["cc:Resources"]?.["cc:ObjectCollection"]?.["cc:Object"]["cc:ColorValues"][
+
+	const reflectanceList =
+		cxf["cc:CxF"]["cc:Resources"]?.["cc:ObjectCollection"]?.["cc:Object"]?.["cc:ColorValues"]?.[
 			"cc:ReflectanceSpectrum"
 		];
 
-	if (!reflectanceCxF) {
-		throw new Error("Brak spektrum odbicia w przkazanym pliku CxF.");
+	if (!reflectanceList || reflectanceList.length === 0) {
+		throw new Error("Brak danych spektrum w pliku CxF.");
 	}
 
-	const startWl = reflectanceCxF[0]?.["@_StartWL"];
-	const colorSpec = reflectanceCxF[0]?.["@_ColorSpecification"];
-	let illuminant = REFERENCE_ILLUM;
-	let observer = STDOBSERV;
+	const colorSpecs =
+		cxf["cc:CxF"]["cc:Resources"]?.["cc:ColorSpecificationCollection"]?.["cc:ColorSpecification"];
 
-	//Szuka w specyfikacji koloru ciagów znaków D50, D65 jeżeli nie ma REFERENCE_ILLUM = d50
-	if (colorSpec?.toUpperCase().indexOf("D50") !== -1) {
-		illuminant = "d50";
-	} else if (colorSpec?.toUpperCase().indexOf("D65") !== -1) {
-		illuminant = "d65";
-	}
+	const results = reflectanceList
+		.filter((r) => r["@_ColorSpecification"])
+		.map((r, idx) => {
+			const id = r["@_ColorSpecification"];
 
-	//Szuka w specyfikacji koloru ciagów znaków 10 lub 2 jeżeli nie ma STDOBSERV = 2
-	if (colorSpec?.slice(-2) === "10") {
-		observer = "10";
-	} else if (colorSpec?.slice(-1) === "2") {
-		observer = "2";
-	}
+			const spec = colorSpecs?.find((s) => s["@_Id"] === id);
 
-	const reflectanceSpectrum = reflectanceCxF[0]
-		? reflectanceCxF[0]["#text"].split(/\s+/).map((val) => parseFloat(val))
-		: [];
+			if (!spec) return null;
 
-	// STDOBSERV, REFERENCE_ILLUM, SPECTRUM_STEP zdefiniowane na początku skryptu
-	const normalizeSpectrumBase = normalizeSpectrum(
-		reflectanceSpectrum,
-		Number(startWl),
-		SPECTRUM_STEP
-	);
+			const startWl = spec["cc:MeasurementSpec"]?.["cc:WavelengthRange"]?.["@_StartWL"];
+			const steps = spec["cc:MeasurementSpec"]?.["cc:WavelengthRange"]?.["@_Increment"];
+			const illuminant = spec["cc:TristimulusSpec"]?.["cc:Illuminant"].toLowerCase() as Illuminants;
+			const observer = spec["cc:TristimulusSpec"]?.["cc:Observer"].split("_")[0] as Observers;
 
-	return spectralToXYZ(normalizeSpectrumBase, illuminant, observer);
+			const spectrumRaw = reflectanceList[idx]?.["#text"].split(/\s+/).map(Number) ?? [];
+			const spectrum = normalizeSpectrum(spectrumRaw, startWl, steps) as number[];
+
+			return {
+				id,
+				illuminant,
+				observer,
+				spectrum,
+			};
+		})
+		.filter(Boolean) as ParsedSpectrum[];
+
+	return results;
 }
 
-// Konwersja XYZ to LAB
-function xyzToLab(xyz: { x: number; y: number; z: number }) {
-	// Observer = 2°, Illuminant = D65
-	// let x = xyz.x / 95.047;
-	// let y = xyz.y / 100.0;
-	// let z = xyz.z / 108.883;
+// Konwersja spektrum do XYZ | illuminant="d50" lub "d65" | observer="2" lub "10"
+function spectralToXYZ(sample: number[], illuminant: Illuminants, observer: Observers) {
+	const referenceIllum = REF_ILLUM_TABLE[illuminant];
+	if (!referenceIllum) {
+		throw new Error(`Nieznany illuminant: ${illuminant}`);
+	}
 
-	// Observer = 2°, Illuminant = D50
-	let x = (xyz.x * 100) / 96.422;
-	let y = (xyz.y * 100) / 100.0;
-	let z = (xyz.z * 100) / 82.521;
+	const stdObs = REF_STDOBSERV_TABLE[observer];
+	if (!stdObs) {
+		throw new Error(`Nieznany observer: ${observer}`);
+	}
 
-	const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+	if (
+		!Array.isArray(sample) ||
+		sample.length !== referenceIllum.length ||
+		stdObs.x.length !== referenceIllum.length
+	) {
+		throw new Error("Długość tablic niezgodna - sprawdź dane wejściowe.");
+	}
 
-	const l = 116 * f(y) - 16;
-	const a = 500 * (f(x) - f(y));
-	const b = 200 * (f(y) - f(z));
+	// Denominator jest stały dla współrzędnych X, Y i Z. Oblicz go raz i użyj ponownie.
+	const denom = dotMultiply(stdObs.y as number[], referenceIllum as number[]);
 
-	return { l: l.toFixed(2), a: a.toFixed(2), b: b.toFixed(2) };
+	// Tablica mnożona przez wybrane źródła światła
+	const sampleByRef = dotMultiply(sample, referenceIllum as number[]);
+
+	const xNum = dotMultiply(sampleByRef, stdObs.x as number[]);
+	const yNum = dotMultiply(sampleByRef, stdObs.y as number[]);
+	const zNum = dotMultiply(sampleByRef, stdObs.z as number[]);
+
+	const denomSum = sum(denom);
+	if (denomSum === 0) {
+		throw new Error(
+			"Denominator wynosi zero - nieprawidłowe źródło światła lub obserwator odniesienia"
+		);
+	}
+
+	const X = sum(xNum) / denomSum;
+	const Y = sum(yNum) / denomSum;
+	const Z = sum(zNum) / denomSum;
+
+	return { x: X, y: Y, z: Z };
 }
 
-// Konwersja XYZ do sRGB
-function xyzToSRGB(xyz: { x: number; y: number; z: number }) {
-	// Przekształcenie XYZ do Linear RGB (matryca sRGB dla D50 – adaptowana Bradfordem)
-	const rLin = 3.1338561 * xyz.x - 1.6168667 * xyz.y - 0.4906146 * xyz.z;
-	const gLin = -0.9787684 * xyz.x + 1.9161415 * xyz.y + 0.033454 * xyz.z;
-	const bLin = 0.0719453 * xyz.x - 0.2289914 * xyz.y + 1.4052427 * xyz.z;
+// Konwersja XYZ to OKLab
+export function xyzToOklab(xyz: { x: number; y: number; z: number }, illuminant: Illuminants) {
+	let adaptedXYZ = [xyz.x, xyz.y, xyz.z];
+
+	if (illuminant === "d50") {
+		adaptedXYZ = applyChromaticAdaptation(xyz.x, xyz.y, xyz.z, illuminant, "d65", "2") as [
+			number,
+			number,
+			number,
+		];
+	}
+
+	//Matrices from Björn Ottosson's OKLab definition
+	const M1 = [
+		[0.8189330101, 0.3618667424, -0.1288597137],
+		[0.0329845436, 0.9293118715, 0.0361456387],
+		[0.0482003018, 0.2643662691, 0.633851707],
+	];
+
+	const M2 = [
+		[0.2104542553, 0.793617785, -0.0040720468],
+		[1.9779984951, -2.428592205, 0.4505937099],
+		[0.0259040371, 0.7827717662, -0.808675766],
+	];
+
+	// macierz konwersji XYZ → LMS
+	const lms = multiply(M1, adaptedXYZ) as [number, number, number];
+
+	// nieliniowa transformacja (sześcienny pierwiastek)
+	const l_ = cbrt(lms[0]);
+	const m_ = cbrt(lms[1]);
+	const s_ = cbrt(lms[2]);
+
+	// konwersji LMS → OKLab
+	const [L, a, b] = multiply(M2, [l_, m_, s_]);
+	if (!L || !a || !b) {
+		throw new Error("Nieoczekiwane wartości w obliczeniach OKLab.");
+	}
+
+	return { L, a, b };
+}
+
+// Konwersja OKLab to OKLCH
+export function oklabToOklch({ L, a, b }: { L: number; a: number; b: number }) {
+	const C = sqrt(a * a + b * b);
+	let h = atan2(b, a) * (180 / Math.PI);
+	if (h < 0) h += 360;
+
+	return { L, C, h };
+}
+
+// Konwersja XYZ do sRGB(D65)
+function xyzToSRGB(xyz: { x: number; y: number; z: number }, illuminant: Illuminants) {
+	let adaptedXYZ = [xyz.x, xyz.y, xyz.z];
+
+	if (illuminant === "d50") {
+		adaptedXYZ = applyChromaticAdaptation(xyz.x, xyz.y, xyz.z, illuminant, "d65", "2");
+	}
+
+	// Macierz konwersji XYZ → liniowe RGB
+	const RGBLin = [
+		[3.24071, -1.53726, -0.498571],
+		[-0.969258, 1.87599, 0.0415557],
+		[0.0556352, -0.203996, 1.05707],
+	];
+
+	const lin = multiply(RGBLin, adaptedXYZ);
+
+	// Zapewnienie, że wartości są nieujemne
+	const rLin = max(lin[0]!, 0.0);
+	const gLin = max(lin[1]!, 0.0);
+	const bLin = max(lin[2]!, 0.0);
 
 	// Kompresja gamma (sRGB standard)
 	const gammaCorrect = (c: number) =>
-		c > 0.0031308 ? 1.055 * Math.pow(c, 1 / 2.4) - 0.055 : 12.92 * c;
+		c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
 
-	const clamp = (v: number) => Math.max(0, Math.min(1, gammaCorrect(v)));
+	// const clamp = (v: number) => Math.min(Math.max(v, 0), 1);
+	const r = gammaCorrect(rLin);
+	const g = gammaCorrect(gLin);
+	const b = gammaCorrect(bLin);
 
-	return {
-		r: Math.floor(clamp(rLin) * 255),
-		g: Math.floor(clamp(gLin) * 255),
-		b: Math.floor(clamp(bLin) * 255),
-	};
+	return { r, g, b };
 }
 
 // Konwersja RGB to CMYK
 function rgbToCmyk(r: number, g: number, b: number) {
-	// Normalize to [0–1]
-	const rN = r / 255;
-	const gN = g / 255;
-	const bN = b / 255;
-
-	const k = 1 - Math.max(rN, gN, bN);
-	const c = (1 - rN - k) / (1 - k) || 0;
-	const m = (1 - gN - k) / (1 - k) || 0;
-	const y = (1 - bN - k) / (1 - k) || 0;
+	const k = 1 - max(r, g, b);
+	const c = k < 1 ? (1 - r - k) / (1 - k) : 0;
+	const m = k < 1 ? (1 - g - k) / (1 - k) : 0;
+	const y = k < 1 ? (1 - b - k) / (1 - k) : 0;
 
 	return {
-		c: Math.floor(c * 100),
-		m: Math.floor(m * 100),
-		y: Math.floor(y * 100),
-		k: Math.floor(k * 100),
+		c: floor(c * 100),
+		m: floor(m * 100),
+		y: floor(y * 100),
+		k: floor(k * 100),
 	};
 }
 
-function rgbToHex(r: number, g: number, b: number): string {
-	const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
-	const toHex = (v: number) => clamp(v).toString(16).padStart(2, "0").toUpperCase();
+// Konwersja RGB to HEX
+function rgbToHex(r: number, g: number, b: number) {
+	const toHex = (v: number) =>
+		max(0, min(255, round(v * 255)))
+			.toString(16)
+			.padStart(2, "0")
+			.toUpperCase();
 
 	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-export async function cxfConverter(jsonCxF: string) {
+export function cxfConverter({ name, jsonCxF }: { name: string; jsonCxF: string }) {
 	if (!jsonCxF) {
 		throw new Error("Brak danych przkazanych.");
 	}
 
-	const xyzResult = parseCxFtoXYZ(jsonCxF);
+	const spectra = getSpectrumFromCxF(jsonCxF);
 
-	if (!xyzResult) {
-		throw new Error("Cos poszło nie tak przy przkształcaniu danych z CxF do XYZ.");
-	}
+	const result = spectra.map((spec) => {
+		const xyz = spectralToXYZ(spec.spectrum, spec.illuminant, spec.observer);
+		const srgb = xyzToSRGB(xyz, spec.illuminant);
+		const oklab = xyzToOklab(xyz, spec.illuminant);
+		const oklch = oklabToOklch(oklab);
+		const cmyk = rgbToCmyk(srgb.r, srgb.g, srgb.b);
+		const hex = rgbToHex(srgb.r, srgb.g, srgb.b);
 
-	const srgb = xyzToSRGB(xyzResult);
-	const lab = xyzToLab(xyzResult);
-	const cmyk = rgbToCmyk(srgb.r, srgb.g, srgb.b);
-	const hex = rgbToHex(srgb.r, srgb.g, srgb.b);
+		return {
+			name: `${name.slice(0, 30)} - ${spec.id}`,
+			result: [
+				{
+					space: "sRGB",
+					value: `${round(srgb.r * 255, 0)},${round(srgb.g * 255, 0)},${round(srgb.b * 255, 0)}`,
+				},
+				{ space: "CMYK", value: `${cmyk.c}%,${cmyk.m}%,${cmyk.y}%,${cmyk.k}%` },
+				{
+					space: "OKLab (Lightness, a-axis, b-axis)",
+					value: `${round(oklab.L * 100, 2)}%,${round(oklab.a, 2)},${round(oklab.b, 2)}`,
+				},
+				{
+					space: "OKLCH (Lightness, Chroma, Hue)",
+					value: `${round(oklch.L * 100, 2)}%,${round(oklch.C, 2)},${round(oklch.h, 2)}`,
+				},
+				{ space: "HEX", value: hex },
+			],
+		};
+	});
 
-	return [
-		{ space: "sRGB", value: `${srgb.r},${srgb.g},${srgb.b}` },
-		{ space: "LAB", value: `${lab.l},${lab.a},${lab.b}` },
-		{ space: "CMYK", value: `${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%` },
-		{ space: "HEX", value: hex },
-	];
+	return result;
 }
