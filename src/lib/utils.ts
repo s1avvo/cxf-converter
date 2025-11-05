@@ -56,3 +56,23 @@ export function applyChromaticAdaptation(
 
 	return multiply(transformMatrix, XYZ).toArray() as [number, number, number];
 }
+
+export function getIlluminantXYZ(illuminant: Illuminants, observer: Observers) {
+	if (!illuminant || !(illuminant.toLowerCase() === "d50" || illuminant.toLowerCase() === "d65")) {
+		throw new Error(
+			`Invalid illuminant: ${illuminant}. Supported illuminants are 'd50' and 'd65'.`
+		);
+	}
+
+	if (!observer || !(observer === "2" || observer === "10")) {
+		throw new Error(`Invalid observer: ${observer}. Supported observers are '2' and '10'.`);
+	}
+
+	const illumXYZ = ILLUMINANTS[observer][illuminant.toLowerCase() as "d50" | "d65"].toArray() as [
+		number,
+		number,
+		number,
+	];
+
+	return { X: illumXYZ[0], Y: illumXYZ[1], Z: illumXYZ[2] };
+}
