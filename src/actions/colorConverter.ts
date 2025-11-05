@@ -1,6 +1,12 @@
 import { REF_ILLUM_TABLE, REF_STDOBSERV_TABLE } from "@/lib/constant";
-import type { ParsedSpectrum, CxFFile, Illuminants, Observers } from "@/lib/types";
-import { applyChromaticAdaptation, parseXML } from "@/lib/utils";
+import type {
+	ParsedSpectrum,
+	CxFFile,
+	Illuminants,
+	Observers,
+	ReflectanceSpectrum,
+} from "@/lib/types";
+import { applyChromaticAdaptation, getIlluminantXYZ, parseXML } from "@/lib/utils";
 import { cbrt, dotMultiply, floor, multiply, sqrt, sum, atan2, max, min, round } from "mathjs";
 
 // Normalizaca danych wejściowych do pełnego spektrum 340–830nm co 10nm
@@ -47,40 +53,70 @@ function normalizeSpectrum(
 export function getSpectrumFromCxF(cxfFile: string) {
 	const cxf = parseXML<CxFFile>(cxfFile);
 
-	const reflectanceList =
-		cxf["cc:CxF"]["cc:Resources"]?.["cc:ObjectCollection"]?.["cc:Object"]?.["cc:ColorValues"]?.[
-			"cc:ReflectanceSpectrum"
-		];
+	const objectCollection = cxf["cc:CxF"]["cc:Resources"]?.["cc:ObjectCollection"];
 
-	if (!reflectanceList || reflectanceList.length === 0) {
+	if (!objectCollection) {
+		throw new Error("Brak ObjectCollection w pliku CxF.");
+	}
+
+	const objects = Array.isArray(objectCollection["cc:Object"])
+		? objectCollection["cc:Object"]
+		: [objectCollection["cc:Object"]];
+
+	const allReflectanceSpectra: Array<{ name: string; spectrum: number[]; colorSpecId: string }> =
+		[];
+
+	objects
+		.filter((obj) => obj["@_ObjectType"] === "Target" || obj["@_ObjectType"] === "Standard")
+		.forEach((obj) => {
+			if (obj["cc:ColorValues"]) {
+				const reflectanceList = obj["cc:ColorValues"]["cc:ReflectanceSpectrum"] as
+					| ReflectanceSpectrum[]
+					| undefined;
+
+				if (reflectanceList) {
+					reflectanceList.forEach((r) => {
+						if (r["@_ColorSpecification"]) {
+							allReflectanceSpectra.push({
+								colorSpecId: r["@_ColorSpecification"],
+								name: r["@_Name"] || "Unnamed Spectrum",
+								spectrum: r["#text"].split(/\s+/).map(Number) ?? [],
+							});
+						}
+					});
+				}
+			}
+		});
+
+	if (allReflectanceSpectra.length === 0) {
 		throw new Error("Brak danych spektrum w pliku CxF.");
 	}
 
 	const colorSpecs =
 		cxf["cc:CxF"]["cc:Resources"]?.["cc:ColorSpecificationCollection"]?.["cc:ColorSpecification"];
 
-	const results = reflectanceList
-		.filter((r) => r["@_ColorSpecification"])
-		.map((r, idx) => {
-			const id = r["@_ColorSpecification"];
+	const results = allReflectanceSpectra
+		.map(({ name, spectrum, colorSpecId }) => {
+			const spec = colorSpecs?.find((s) => s["@_Id"] === colorSpecId);
 
-			const spec = colorSpecs?.find((s) => s["@_Id"] === id);
-
-			if (!spec) return null;
+			if (!spec) {
+				throw new Error("Brak specyfikacji koloru w pliku CxF.");
+			}
 
 			const startWl = spec["cc:MeasurementSpec"]?.["cc:WavelengthRange"]?.["@_StartWL"];
 			const steps = spec["cc:MeasurementSpec"]?.["cc:WavelengthRange"]?.["@_Increment"];
 			const illuminant = spec["cc:TristimulusSpec"]?.["cc:Illuminant"].toLowerCase() as Illuminants;
 			const observer = spec["cc:TristimulusSpec"]?.["cc:Observer"].split("_")[0] as Observers;
 
-			const spectrumRaw = reflectanceList[idx]?.["#text"].split(/\s+/).map(Number) ?? [];
-			const spectrum = normalizeSpectrum(spectrumRaw, startWl, steps) as number[];
+			const spectrumRaw = spectrum;
+			const normalizedSpectrum = normalizeSpectrum(spectrumRaw, startWl, steps) as number[];
 
 			return {
-				id,
+				id: colorSpecId,
+				name,
 				illuminant,
 				observer,
-				spectrum,
+				spectrum: normalizedSpectrum,
 			};
 		})
 		.filter(Boolean) as ParsedSpectrum[];
@@ -100,11 +136,7 @@ function spectralToXYZ(sample: number[], illuminant: Illuminants, observer: Obse
 		throw new Error(`Nieznany observer: ${observer}`);
 	}
 
-	if (
-		!Array.isArray(sample) ||
-		sample.length !== referenceIllum.length ||
-		stdObs.x.length !== referenceIllum.length
-	) {
+	if (sample.length !== referenceIllum.length || stdObs.x.length !== referenceIllum.length) {
 		throw new Error("Długość tablic niezgodna - sprawdź dane wejściowe.");
 	}
 
@@ -133,15 +165,15 @@ function spectralToXYZ(sample: number[], illuminant: Illuminants, observer: Obse
 }
 
 // Konwersja XYZ to OKLab
-export function xyzToOklab(xyz: { x: number; y: number; z: number }, illuminant: Illuminants) {
+export function xyzToOklab(
+	xyz: { x: number; y: number; z: number },
+	illuminant: Illuminants,
+	observer: Observers
+) {
 	let adaptedXYZ = [xyz.x, xyz.y, xyz.z];
 
 	if (illuminant === "d50") {
-		adaptedXYZ = applyChromaticAdaptation(xyz.x, xyz.y, xyz.z, illuminant, "d65", "2") as [
-			number,
-			number,
-			number,
-		];
+		adaptedXYZ = applyChromaticAdaptation(xyz.x, xyz.y, xyz.z, illuminant, "d65", observer);
 	}
 
 	//Matrices from Björn Ottosson's OKLab definition
@@ -184,11 +216,15 @@ export function oklabToOklch({ L, a, b }: { L: number; a: number; b: number }) {
 }
 
 // Konwersja XYZ do sRGB(D65)
-function xyzToSRGB(xyz: { x: number; y: number; z: number }, illuminant: Illuminants) {
+function xyzToSRGB(
+	xyz: { x: number; y: number; z: number },
+	illuminant: Illuminants,
+	observer: Observers
+) {
 	let adaptedXYZ = [xyz.x, xyz.y, xyz.z];
 
 	if (illuminant === "d50") {
-		adaptedXYZ = applyChromaticAdaptation(xyz.x, xyz.y, xyz.z, illuminant, "d65", "2");
+		adaptedXYZ = applyChromaticAdaptation(xyz.x, xyz.y, xyz.z, illuminant, "d65", observer);
 	}
 
 	// Macierz konwersji XYZ → liniowe RGB
@@ -217,6 +253,71 @@ function xyzToSRGB(xyz: { x: number; y: number; z: number }, illuminant: Illumin
 	return { r, g, b };
 }
 
+function xyzToLab(
+	xyz: { x: number; y: number; z: number },
+	illuminant: Illuminants,
+	observer: Observers
+) {
+	const illum = getIlluminantXYZ(illuminant, observer);
+
+	let tempX = xyz.x / illum.X;
+	let tempY = xyz.y / illum.Y;
+	let tempZ = xyz.z / illum.Z;
+
+	const CIE_E = 216.0 / 24389.0;
+
+	tempX = tempX > CIE_E ? Math.pow(tempX, 1.0 / 3.0) : 7.787 * tempX + 16.0 / 116.0;
+	tempY = tempY > CIE_E ? Math.pow(tempY, 1.0 / 3.0) : 7.787 * tempY + 16.0 / 116.0;
+	tempZ = tempZ > CIE_E ? Math.pow(tempZ, 1.0 / 3.0) : 7.787 * tempZ + 16.0 / 116.0;
+
+	const L = 116.0 * tempY - 16.0;
+	const a = 500.0 * (tempX - tempY);
+	const b = 200.0 * (tempY - tempZ);
+
+	return { L, a, b };
+}
+
+// function xyzToLuv(
+// 	xyz: { x: number; y: number; z: number },
+// 	illuminant: Illuminants,
+// 	observer: Observers
+// ) {
+// 	let tempX = xyz.x;
+// 	let tempY = xyz.y;
+// 	let tempZ = xyz.z;
+
+// 	const denom = tempX + 15.0 * tempY + 3.0 * tempZ;
+// 	let upPrime, vpPrime;
+// 	if (denom === 0.0) {
+// 		upPrime = 0.0;
+// 		vpPrime = 0.0;
+// 	} else {
+// 		upPrime = (4.0 * tempX) / denom;
+// 		vpPrime = (9.0 * tempY) / denom;
+// 	}
+
+// 	// pobranie illuminant (wspieram zarówno illum.X jak i illum["X"])
+// 	const illum = getIlluminantXYZ(illuminant, observer);
+
+// 	// normalizacja Y względem bieli i zastosowanie progu CIE_E
+// 	const normalizedY = illum.Y === 0 || illum.Y === undefined ? 0.0 : tempY / illum.Y;
+// 	const CIE_E = 216.0 / 24389.0;
+// 	const fY =
+// 		normalizedY > CIE_E ? Math.pow(normalizedY, 1.0 / 3.0) : 7.787 * normalizedY + 16.0 / 116.0;
+
+// 	// referencyjne u' v' dla illuminanta
+// 	const denomRef = (illum.X || 0.0) + 15.0 * (illum.Y || 0.0) + 3.0 * (illum.Z || 0.0);
+// 	const refU = denomRef === 0.0 ? 0.0 : (4.0 * illum.X) / denomRef;
+// 	const refV = denomRef === 0.0 ? 0.0 : (9.0 * illum.Y) / denomRef;
+
+// 	// obliczenia końcowe L, u, v
+// 	const L = 116.0 * fY - 16.0;
+// 	const u = 13.0 * L * (upPrime - refU);
+// 	const v = 13.0 * L * (vpPrime - refV);
+
+// 	return { L, u, v };
+// }
+
 // Konwersja RGB to CMYK
 function rgbToCmyk(r: number, g: number, b: number) {
 	const k = 1 - max(r, g, b);
@@ -234,16 +335,19 @@ function rgbToCmyk(r: number, g: number, b: number) {
 
 // Konwersja RGB to HEX
 function rgbToHex(r: number, g: number, b: number) {
-	const toHex = (v: number) =>
-		max(0, min(255, round(v * 255)))
-			.toString(16)
-			.padStart(2, "0")
-			.toUpperCase();
+	const hex = [r, g, b]
+		.map((v) =>
+			max(0, min(255, round(v * 255)))
+				.toString(16)
+				.toUpperCase()
+				.padStart(2, "0")
+		)
+		.join("");
 
-	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+	return `#${hex}`;
 }
 
-export function cxfConverter({ name, jsonCxF }: { name: string; jsonCxF: string }) {
+export function cxfConverter(jsonCxF: string) {
 	if (!jsonCxF) {
 		throw new Error("Brak danych przkazanych.");
 	}
@@ -252,20 +356,22 @@ export function cxfConverter({ name, jsonCxF }: { name: string; jsonCxF: string 
 
 	const result = spectra.map((spec) => {
 		const xyz = spectralToXYZ(spec.spectrum, spec.illuminant, spec.observer);
-		const srgb = xyzToSRGB(xyz, spec.illuminant);
-		const oklab = xyzToOklab(xyz, spec.illuminant);
+		const srgb = xyzToSRGB(xyz, spec.illuminant, spec.observer);
+		const lab = xyzToLab(xyz, spec.illuminant, spec.observer);
+		const oklab = xyzToOklab(xyz, spec.illuminant, spec.observer);
 		const oklch = oklabToOklch(oklab);
 		const cmyk = rgbToCmyk(srgb.r, srgb.g, srgb.b);
 		const hex = rgbToHex(srgb.r, srgb.g, srgb.b);
 
 		return {
-			name: `${name.slice(0, 30)} - ${spec.id}`,
+			name: spec.name,
 			result: [
 				{
 					space: "sRGB",
 					value: `${round(srgb.r * 255, 0)},${round(srgb.g * 255, 0)},${round(srgb.b * 255, 0)}`,
 				},
 				{ space: "CMYK", value: `${cmyk.c}%,${cmyk.m}%,${cmyk.y}%,${cmyk.k}%` },
+				{ space: "CIELab", value: `${round(lab.L, 2)},${round(lab.a, 2)},${round(lab.b, 2)}` },
 				{
 					space: "OKLab (Lightness, a-axis, b-axis)",
 					value: `${round(oklab.L * 100, 2)}%,${round(oklab.a, 2)},${round(oklab.b, 2)}`,
