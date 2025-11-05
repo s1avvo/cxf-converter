@@ -25,7 +25,7 @@ export function FileUpload() {
 		const data = new FormData();
 		data.append("file", file);
 
-		const converterResult = cxfConverter({ name: file.name, jsonCxF: await file.text() });
+		const converterResult = cxfConverter(await file.text());
 		setColorResult(converterResult);
 	};
 
