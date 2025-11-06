@@ -36,7 +36,6 @@ export function EmailTemplate(
         .container {
           max-width: 768px;
           margin: 0 auto;
-          padding: 0 20px;
         }
         h2 {
           font-size: 22px;

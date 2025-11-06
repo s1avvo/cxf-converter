@@ -11,13 +11,13 @@ export function HeroSection() {
 	const { colorResult, setColorResult } = useConverter();
 
 	return (
-		<section className="bg-background py-20">
+		<section className="bg-background py-8 sm:py-12 md:py-16">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<header className="mb-12 text-center">
-					<h1 className="mb-6 text-4xl font-bold md:text-6xl">
+				<header className="mb-12 text-center md:mb-16">
+					<h1 className="mb-6 text-5xl font-bold md:text-6xl">
 						Professional <span className="gradient-text">CxF Converter</span>
 					</h1>
-					<p className="text-muted-foreground mx-auto mb-8 max-w-3xl text-xl">
+					<p className="text-muted-foreground mx-auto max-w-3xl text-xl">
 						Convert CxF to CMYK, sRGB, OKLab, OKLch and HEX formats for different measurement
 						conditions included in the file
 					</p>
@@ -27,7 +27,7 @@ export function HeroSection() {
 					{!colorResult ? (
 						<FileUpload />
 					) : (
-						<div className="space-y-8 text-center">
+						<div className="space-y-8 px-4 text-center sm:px-0">
 							{colorResult.map((color) => (
 								<div className="mx-auto grid max-w-xl" key={color.name}>
 									<div className="bg-muted relative mb-8 flex items-center rounded-lg p-2">
@@ -70,10 +70,11 @@ export function HeroSection() {
 							))}
 
 							<Button
+								size="lg"
 								variant="outline"
 								onClick={() => {
 									setColorResult(null);
-									window.scrollTo({ top: 0, behavior: "smooth" });
+									window.scrollTo({ top: 0 });
 								}}
 							>
 								Convert Another File

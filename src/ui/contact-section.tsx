@@ -8,7 +8,7 @@ import { Label } from "@ui/shadcn/label";
 import { Checkbox } from "@ui/shadcn/checkbox";
 import { Mail, CheckCircle, AlertCircle, CircleX } from "lucide-react";
 
-import { type ContactFormData, submitContactForm } from "@/actions/submitContactForm";
+import { type ContactFormData, submitColorResult } from "@/actions/submit-color-result";
 
 import { useConverter } from "@/context/convert-provider";
 
@@ -20,7 +20,7 @@ const initialData: ContactFormData = {
 
 export function ContactSection() {
 	const { colorResult } = useConverter();
-	const [state, formAction, isPending] = useActionState(submitContactForm, {
+	const [state, formAction, isPending] = useActionState(submitColorResult, {
 		success: false,
 		data: initialData,
 		errors: undefined,
@@ -36,7 +36,7 @@ export function ContactSection() {
 
 	return (
 		colorResult && (
-			<section id="contact" className="bg-background py-20">
+			<section id="contact" className="bg-background py-8 sm:py-12 md:py-16">
 				<div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
 					<div className="border-border rounded-lg border p-8">
 						<div className="mb-8 text-center">
@@ -75,7 +75,7 @@ export function ContactSection() {
 								</div>
 							</div>
 
-							<div className="flex items-start space-x-2">
+							<div className="inline-flex items-start space-x-2">
 								<Checkbox
 									id="privacy"
 									name="privacy"
@@ -83,12 +83,14 @@ export function ContactSection() {
 									disabled={isPending}
 									className="border-muted border"
 								/>
-								<Label htmlFor="privacy" className="text-foreground text-sm font-normal">
-									By selecting this you agree to our{" "}
-									<Link href="#" className="font-medium underline">
-										Privacy Policy
-									</Link>
-								</Label>
+								<span className="flex items-start">
+									<Label htmlFor="privacy" className="text-foreground inline text-sm font-normal">
+										By selecting this you agree to our{" "}
+										<Link href="#" className="inline font-medium underline">
+											Privacy Policy
+										</Link>
+									</Label>
+								</span>
 							</div>
 							{state.errors?.privacy && (
 								<div className="flex items-center space-x-1">
@@ -113,9 +115,9 @@ export function ContactSection() {
 
 							<div className="pt-4">
 								<Button
-									type="submit"
 									size="lg"
-									className="gradient-primary gradient-primary-hover w-full font-semibold text-white shadow-md transition-all duration-300"
+									type="submit"
+									className="gradient-primary gradient-primary-hover w-full"
 									disabled={isPending}
 									aria-busy={isPending}
 								>
