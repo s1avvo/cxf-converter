@@ -71,3 +71,21 @@ export type ParsedSpectrum = {
 	observer: Observers;
 	spectrum: number[];
 };
+
+export type ColorSpace =
+	| "sRGB"
+	| "CMYK"
+	| "CIELab"
+	| "OKLab (Lightness, a-axis, b-axis)"
+	| "OKLCH (Lightness, Chroma, Hue)"
+	| "HEX";
+
+export type ColorResult = {
+	space: ColorSpace;
+	value: string;
+};
+
+export type ConversionResult = {
+	name: string;
+	result: ColorResult[];
+};
