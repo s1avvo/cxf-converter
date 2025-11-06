@@ -12,8 +12,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-	title: "CxF Color Converter - Professional Color Space Conversion",
-	description: "Convert CxF files to other color spaces.",
+	title: "CxF File Converter - Professional Color Space Conversion",
+	description: "Convert CxF to CMYK, sRGB, OKLab, OKLch and HEX formats.",
 };
 
 export default function RootLayout({
