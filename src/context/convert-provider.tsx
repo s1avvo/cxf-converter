@@ -1,21 +1,17 @@
 "use client";
 
+import { type ConversionResult } from "@/lib/types";
 import React, { createContext, ReactNode, use, useState } from "react";
 
-type ColorResult = {
-	name: string;
-	result: { space: string; value: string }[];
-};
-
 type ConverterContextType = {
-	colorResult: ColorResult[] | null;
-	setColorResult: (result: ColorResult[] | null) => void;
+	colorResult: ConversionResult[] | null;
+	setColorResult: (result: ConversionResult[] | null) => void;
 };
 
 export const ConverterContext = createContext<ConverterContextType | undefined>(undefined);
 
 export function ConverterProvider({ children }: { children: ReactNode }) {
-	const [colorResult, setColorResult] = useState<ColorResult[] | null>(null);
+	const [colorResult, setColorResult] = useState<ConversionResult[] | null>(null);
 
 	return <ConverterContext value={{ colorResult, setColorResult }}>{children}</ConverterContext>;
 }
