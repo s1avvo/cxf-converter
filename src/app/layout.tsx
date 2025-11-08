@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
+import { Header } from "@ui/header";
+import { Footer } from "@ui/footer";
+import { ConverterProvider } from "@/context/convert-provider";
+import { Toaster } from "@ui/shadcn/sonner";
 
-const roboto = Roboto({
-	variable: "--font-roboto",
+const dmSans = DM_Sans({
 	subsets: ["latin"],
+	display: "swap",
+	variable: "--font-dm-sans",
 });
 
 export const metadata: Metadata = {
-	title: "CxF converter",
-	description: "Convert CxF files to other color spaces.",
+	title: "CxF File Converter - Professional Color Space Conversion",
+	description: "Convert CxF to CMYK, sRGB, OKLab, OKLch and HEX formats.",
 };
 
 export default function RootLayout({
@@ -18,8 +23,13 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
-			<body className={`${roboto.variable} antialiased`}>{children}</body>
+		<html lang="en" className={`${dmSans.variable} antialiased`}>
+			<body className="font-dm-sans min-h-full flex-col">
+				<Header />
+				<ConverterProvider>{children}</ConverterProvider>
+				<Footer />
+				<Toaster position="bottom-left" />
+			</body>
 		</html>
 	);
 }
