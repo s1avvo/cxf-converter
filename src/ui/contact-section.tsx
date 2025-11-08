@@ -1,18 +1,20 @@
 "use client";
 
+import { Mail, AlertCircle } from "lucide-react";
 import { useActionState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
+import type { ContactFormData, ContactFormState } from "@/lib/schema";
+
 import { Button } from "@ui/shadcn/button";
 import { Input } from "@ui/shadcn/input";
 import { Label } from "@ui/shadcn/label";
 import { Checkbox } from "@ui/shadcn/checkbox";
-import { Mail, CheckCircle, AlertCircle, CircleX } from "lucide-react";
-
-import { type ContactFormData, submitColorResult } from "@/actions/submit-color-result";
 
 import { useConverter } from "@/context/convert-provider";
+import { submitColorResult } from "@/actions/submit-color-result";
 
-const initialData: ContactFormData = {
+const INITIAL_DATA: ContactFormData = {
 	email: "",
 	privacy: false,
 	results: "",
@@ -20,19 +22,26 @@ const initialData: ContactFormData = {
 
 export function ContactSection() {
 	const { colorResult } = useConverter();
-	const [state, formAction, isPending] = useActionState(submitColorResult, {
-		success: false,
-		data: initialData,
-		errors: undefined,
-		message: "",
-	});
+	const [state, formAction, isPending] = useActionState(
+		async (_prevState: ContactFormState, formData: FormData) => {
+			if (colorResult) {
+				formData.append("results", JSON.stringify(colorResult));
+			}
 
-	async function handleSubmit(formData: FormData) {
-		if (colorResult) {
-			formData.append("results", JSON.stringify(colorResult));
-		}
-		formAction(formData);
-	}
+			const result = await submitColorResult(formData);
+
+			if (!result.success && result.message.length > 0) {
+				toast.error(result.message);
+			}
+
+			if (result.success) {
+				toast.success(result.message);
+			}
+
+			return result;
+		},
+		{ success: false, data: INITIAL_DATA, errors: undefined, message: "" }
+	);
 
 	return (
 		colorResult && (
@@ -51,7 +60,7 @@ export function ContactSection() {
 							</p>
 						</div>
 
-						<form action={handleSubmit} className="space-y-4">
+						<form action={formAction} className="space-y-4">
 							<div className="grid grid-cols-1 gap-6">
 								<div className="space-y-2">
 									<Label htmlFor="email" className="text-foreground font-medium">
@@ -60,7 +69,7 @@ export function ContactSection() {
 									<Input
 										id="email"
 										name="email"
-										defaultValue={state.data?.email || ""}
+										defaultValue={state.data.email || ""}
 										placeholder="email@example.com"
 										className="border-muted focus:border-primary border transition-colors"
 										disabled={isPending}
@@ -75,43 +84,31 @@ export function ContactSection() {
 								</div>
 							</div>
 
-							<div className="inline-flex items-start space-x-2">
-								<Checkbox
-									id="privacy"
-									name="privacy"
-									defaultChecked={state.data?.privacy || false}
-									disabled={isPending}
-									className="border-muted border"
-								/>
-								<span className="flex items-start">
-									<Label htmlFor="privacy" className="text-foreground inline text-sm font-normal">
-										By selecting this you agree to our{" "}
-										<Link href="#" className="inline font-medium underline">
-											Privacy Policy
-										</Link>
-									</Label>
-								</span>
+							<div>
+								<div className="inline-flex items-start space-x-2">
+									<Checkbox
+										id="privacy"
+										name="privacy"
+										defaultChecked={state.data.privacy || false}
+										disabled={isPending}
+										className="border-muted border"
+									/>
+									<span className="flex items-start">
+										<Label htmlFor="privacy" className="text-foreground inline text-sm font-normal">
+											By selecting this you agree to our{" "}
+											<Link href="#" className="inline font-medium underline">
+												Privacy Policy
+											</Link>
+										</Label>
+									</span>
+								</div>
+								{state.errors?.privacy && (
+									<div className="flex items-center space-x-1">
+										<AlertCircle className="h-4 w-4 text-red-500" />
+										<span className="text-sm text-red-500">{state.errors.privacy[0]}</span>
+									</div>
+								)}
 							</div>
-							{state.errors?.privacy && (
-								<div className="flex items-center space-x-1">
-									<AlertCircle className="h-4 w-4 text-red-500" />
-									<span className="text-sm text-red-500">{state.errors.privacy[0]}</span>
-								</div>
-							)}
-
-							{state.success && (
-								<div className="mx-auto mb-6 flex max-w-2xl items-center space-x-2 rounded-lg border border-green-200 bg-green-50 p-4">
-									<CheckCircle className="h-5 w-5 text-green-600" />
-									<span className="text-green-800">{state.message}</span>
-								</div>
-							)}
-
-							{!state.success && state.message.length > 0 && (
-								<div className="mx-auto mb-6 flex max-w-2xl items-center space-x-2 rounded-lg border border-red-200 bg-red-50 p-4">
-									<CircleX className="h-5 w-5 text-red-500" />
-									<span className="text-red-500">{state.message}</span>
-								</div>
-							)}
 
 							<div className="pt-4">
 								<Button
