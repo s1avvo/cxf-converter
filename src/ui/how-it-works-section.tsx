@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@ui/shadcn/card";
 import { Upload, Play, BarChart3, MailCheck } from "lucide-react";
+import { Card, CardContent } from "@ui/shadcn/card";
 
 const steps = [
 	{
@@ -48,7 +48,7 @@ export function HowItWorksSection() {
 				<ol className="grid grid-cols-1 items-stretch gap-8 md:grid-cols-2 lg:grid-cols-4">
 					{steps.map((step, index) => (
 						<li key={index}>
-							<Card className="bg-card border-border group relative mt-4 h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
+							<Card className="bg-card border-border group relative h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
 								<div
 									className={`absolute inset-0 ${step.gradientClass} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}
 									aria-hidden="true"
@@ -58,7 +58,7 @@ export function HowItWorksSection() {
 									aria-hidden="true"
 								/>
 
-								<CardContent className="relative z-10 p-6 text-center">
+								<CardContent className="relative z-10 p-4 text-center">
 									<div className="relative mb-4 inline-block">
 										<span
 											className={`${step.gradientClass} flex h-16 w-16 items-center justify-center rounded-full shadow-lg`}
