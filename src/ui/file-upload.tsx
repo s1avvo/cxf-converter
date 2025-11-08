@@ -3,12 +3,14 @@
 import { File, Upload, Trash, Play } from "lucide-react";
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
-
-import { Button } from "@ui/shadcn/button";
-import { Card, CardContent } from "@ui/shadcn/card";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { cxfConverter } from "@/actions/cxf-converter";
+
+import { Card, CardContent } from "@ui/shadcn/card";
+import { Button } from "@ui/shadcn/button";
+
 import { useConverter } from "@/context/convert-provider";
+import { cxfConverter } from "@/actions/cxf-converter";
 
 export function FileUpload() {
 	const { setColorResult } = useConverter();
@@ -18,7 +20,7 @@ export function FileUpload() {
 		e.preventDefault();
 
 		if (!file) {
-			alert("No files selected!");
+			toast.warning("No files selected!");
 			return;
 		}
 
