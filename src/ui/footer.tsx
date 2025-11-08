@@ -6,16 +6,12 @@ const sections = [
 		header: "Support",
 		links: [
 			{
-				label: "Features",
-				href: "https://cxf-converter.vercel.app/#features",
-			},
-			{
 				label: "How It Works",
 				href: "https://cxf-converter.vercel.app/#how-it-works",
 			},
 			{
-				label: "Contact Us",
-				href: "mailto: somemail@gmail.com",
+				label: "FAQ",
+				href: "https://cxf-converter.vercel.app/#faq",
 			},
 		],
 	},
@@ -42,8 +38,8 @@ export function Footer() {
 					<div className="col-span-1 md:col-span-2">
 						<h3 className="text-primary mb-4 text-2xl font-bold">CXF Converter</h3>
 						<p className="text-muted-foreground mb-4 max-w-md">
-							Professional color space conversion service trusted by designers and print
-							professionals worldwide. Accurate, fast, and reliable CXF file conversion.
+							Color space conversion service trusted by designers and print professionals worldwide.
+							Accurate, fast, and reliable CXF file conversion.
 						</p>
 					</div>
 
