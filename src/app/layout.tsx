@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@ui/header";
 import { Footer } from "@ui/footer";
 import { ConverterProvider } from "@/context/convert-provider";
+import { Toaster } from "@ui/shadcn/sonner";
 
 const dmSans = DM_Sans({
 	subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({
 				<Header />
 				<ConverterProvider>{children}</ConverterProvider>
 				<Footer />
+				<Toaster position="bottom-left" />
 			</body>
 		</html>
 	);
