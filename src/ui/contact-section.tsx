@@ -45,7 +45,7 @@ export function ContactSection() {
 
 	return (
 		colorResult && (
-			<section id="contact" className="bg-background py-8 sm:py-12 md:py-16">
+			<section className="bg-background py-8 sm:py-12 md:py-16">
 				<div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
 					<div className="border-border rounded-lg border p-8">
 						<div className="mb-8 text-center">
