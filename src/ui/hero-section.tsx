@@ -14,9 +14,7 @@ export function HeroSection() {
 		<section className="bg-background py-8 sm:py-12 md:py-16">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<header className="mb-12 text-center md:mb-16">
-					<h1 className="mb-6 text-5xl font-bold md:text-6xl">
-						Professional <span className="gradient-text">CxF Converter</span>
-					</h1>
+					<h1 className="gradient-text mb-6 text-5xl font-bold md:text-6xl">CxF Converter</h1>
 					<p className="text-muted-foreground mx-auto max-w-3xl text-xl">
 						Convert CxF to CMYK, sRGB, OKLab, OKLch and HEX formats for different measurement
 						conditions included in the file
