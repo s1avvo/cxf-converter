@@ -1,9 +1,9 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from "clsx";
 import { XMLParser } from "fast-xml-parser";
-import { type Illuminants, type Observers } from "@/lib/types";
-import { multiply, diag, pinv, type Matrix } from "mathjs";
+import { diag, type Matrix, multiply, pinv } from "mathjs";
+import { twMerge } from "tailwind-merge";
 import { ADAPTATIONS, ILLUMINANTS } from "@/lib/constant";
+import type { Illuminants, Observers } from "@/lib/types";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

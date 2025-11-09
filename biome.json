@@ -1,0 +1,87 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": {
+		"ignoreUnknown": false,
+		"includes": ["**", "!**/package.json", "!**/src/ui/shadcn"]
+	},
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": false,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"lineWidth": 100,
+		"attributePosition": "auto",
+		"bracketSameLine": false,
+		"bracketSpacing": true,
+		"expand": "auto",
+		"useEditorconfig": true,
+		"includes": ["**", "!**/.next", "!**/node_modules", "!**/package-lock.json"]
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"complexity": {
+				"noForEach": "off",
+				"noImportantStyles": "off",
+				"useLiteralKeys": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "es5",
+			"semicolons": "always",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"quoteStyle": "double",
+			"attributePosition": "auto",
+			"bracketSpacing": true
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"assist": { "enabled": true, "actions": { "source": { "organizeImports": "on" } } },
+	"overrides": [
+		{
+			"includes": [
+				"**/*.d.ts",
+				"**/proxy.ts",
+				"**/next.config.mjs",
+				"**/postcss.config.js",
+				"**/app/globals.css",
+				"**/app/**/default.tsx",
+				"**/app/**/error.tsx",
+				"**/app/**/global-error.tsx",
+				"**/app/**/layout.tsx",
+				"**/app/**/template.tsx",
+				"**/app/**/loading.tsx",
+				"**/app/**/not-found.tsx",
+				"**/app/**/forbidden.tsx",
+				"**/app/**/unauthorized.tsx",
+				"**/app/**/opengraph-image.tsx",
+				"**/app/**/page.tsx",
+				"**/app/**/robots.ts",
+				"**/app/**/route.tsx",
+				"**/app/**/sitemap.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
+				}
+			}
+		}
+	]
+}
