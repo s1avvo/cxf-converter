@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
-import { Header } from "@ui/header";
 import { Footer } from "@ui/footer";
-import { ConverterProvider } from "@/context/convert-provider";
+import { Header } from "@ui/header";
 import { Toaster } from "@ui/shadcn/sonner";
+import { ConverterProvider } from "@/context/convert-provider";
 
 const dmSans = DM_Sans({
 	subsets: ["latin"],

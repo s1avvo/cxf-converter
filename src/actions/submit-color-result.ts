@@ -2,13 +2,13 @@
 
 import { Resend } from "resend";
 import { z } from "zod";
-import { EmailTemplate } from "@/ui/email-template";
 import {
 	type ContactFormData,
 	type ContactFormErrors,
 	type ContactFormState,
 	contactFormSchema,
 } from "@/lib/schema";
+import { EmailTemplate } from "@/ui/email-template";
 
 /**
  * Initialize Resend client
