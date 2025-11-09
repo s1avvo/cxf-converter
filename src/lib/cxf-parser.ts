@@ -4,7 +4,6 @@
  */
 
 import { floor, round } from "mathjs";
-import { parseXML } from "@/lib/utils";
 import type {
 	CxFFile,
 	Illuminants,
@@ -12,6 +11,7 @@ import type {
 	ParsedSpectrum,
 	ReflectanceSpectrum,
 } from "@/lib/types";
+import { parseXML } from "@/lib/utils";
 
 /** Spectral range constants */
 const MIN_WAVELENGTH = 340;

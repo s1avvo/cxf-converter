@@ -3,10 +3,10 @@
  * Provides conversion functions between different color spaces (XYZ, Lab, OKLab, sRGB, etc.)
  */
 
-import { cbrt, dotMultiply, floor, multiply, sqrt, atan2, max, min, round, sum } from "mathjs";
+import { atan2, cbrt, dotMultiply, floor, max, min, multiply, round, sqrt, sum } from "mathjs";
 import { REF_ILLUM_TABLE, REF_STDOBSERV_TABLE } from "@/lib/constant";
-import { applyChromaticAdaptation, getIlluminantXYZ } from "@/lib/utils";
 import type { Illuminants, Observers } from "@/lib/types";
+import { applyChromaticAdaptation, getIlluminantXYZ } from "@/lib/utils";
 
 /** Conversion matrices for XYZ to OKLab */
 const OKLAB_M1 = [
@@ -170,7 +170,7 @@ export function xyzToSRGB(
  * Apply sRGB gamma correction
  */
 function applySRGBGamma(linear: number): number {
-	return linear <= 0.0031308 ? 12.92 * linear : 1.055 * Math.pow(linear, 1 / 2.4) - 0.055;
+	return linear <= 0.0031308 ? 12.92 * linear : 1.055 * linear ** (1 / 2.4) - 0.055;
 }
 
 /**
@@ -204,7 +204,7 @@ export function xyzToLab(
  * Apply CIE Lab function transformation
  */
 function applyLabFunction(t: number): number {
-	return t > CIE_EPSILON ? Math.pow(t, 1.0 / 3.0) : (CIE_KAPPA * t + 16.0) / 116.0;
+	return t > CIE_EPSILON ? t ** (1.0 / 3.0) : (CIE_KAPPA * t + 16.0) / 116.0;
 }
 
 /**

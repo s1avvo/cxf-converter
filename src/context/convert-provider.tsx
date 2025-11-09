@@ -1,7 +1,7 @@
 "use client";
 
-import { type ConversionResult } from "@/lib/types";
-import React, { createContext, ReactNode, use, useState } from "react";
+import { createContext, type ReactNode, use, useState } from "react";
+import type { ConversionResult } from "@/lib/types";
 
 type ConverterContextType = {
 	colorResult: ConversionResult[] | null;

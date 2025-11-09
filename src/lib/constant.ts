@@ -1,5 +1,5 @@
+import { type Matrix, matrix } from "mathjs";
 import type { Illuminants, Observers } from "@/lib/types";
-import { matrix, type Matrix } from "mathjs";
 
 const STDOBSERV_X2 = [
 	0.0, 0.0, 0.0001299, 0.0004149, 0.001368, 0.004243, 0.01431, 0.04351, 0.13438, 0.2839, 0.34828,
