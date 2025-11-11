@@ -1,6 +1,6 @@
-export function EmailTemplate(
-	results: { name: string; result: { space: string; value: string }[] }[]
-) {
+import type { ConversionResult } from "@/lib/types";
+
+export function EmailTemplate(results: ConversionResult[]) {
 	const tableRows = results
 		.map((color) => {
 			const rows = color.result
