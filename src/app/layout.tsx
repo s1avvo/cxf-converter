@@ -4,6 +4,7 @@ import "./globals.css";
 import { Footer } from "@ui/footer";
 import { Header } from "@ui/header";
 import { Toaster } from "@ui/shadcn/sonner";
+import { Suspense } from "react";
 import { ConverterProvider } from "@/context/convert-provider";
 
 const dmSans = DM_Sans({
@@ -26,7 +27,9 @@ export default function RootLayout({
 		<html lang="en" className={`${dmSans.variable} antialiased`}>
 			<body className="font-dm-sans min-h-full flex-col">
 				<Header />
-				<ConverterProvider>{children}</ConverterProvider>
+				<Suspense fallback={<div className="mt-20 text-center">Loading...</div>}>
+					<ConverterProvider>{children}</ConverterProvider>
+				</Suspense>
 				<Footer />
 				<Toaster position="bottom-left" />
 			</body>
