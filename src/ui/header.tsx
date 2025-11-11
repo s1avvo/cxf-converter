@@ -20,6 +20,7 @@ export function Header() {
 					href="/"
 					className="gradient-text text-2xl font-bold"
 					aria-label="CXF Converter Homepage"
+					scroll={false}
 				>
 					CXF Converter
 				</Link>
