@@ -3,7 +3,6 @@
 import { Button } from "@ui/shadcn/button";
 import { Card, CardContent } from "@ui/shadcn/card";
 import { File, Play, Trash, Upload } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
 import type { FileWithPath } from "react-dropzone";
@@ -14,18 +13,8 @@ import { useConverter } from "@/context/convert-provider";
 import { cn } from "@/lib/utils";
 
 export function FileUpload() {
-	const router = useRouter();
-	const searchParams = useSearchParams();
-
 	const { setColorResult } = useConverter();
 	const [file, setFile] = useState<FileWithPath>();
-
-	const createQueryString = (value: string) => {
-		const params = new URLSearchParams(searchParams.toString());
-		params.set("encoded-file", value);
-
-		return params.toString();
-	};
 
 	const handleFile = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -40,8 +29,6 @@ export function FileUpload() {
 
 		const converterResult = cxfConverter(await file.text());
 		setColorResult(converterResult);
-
-		router.push(`/?${createQueryString(file.name)}`, { scroll: true });
 	};
 
 	return (
