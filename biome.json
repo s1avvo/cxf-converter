@@ -10,7 +10,7 @@
 		"formatWithErrors": false,
 		"indentStyle": "tab",
 		"indentWidth": 2,
-		"lineEnding": "lf",
+		"lineEnding": "auto",
 		"lineWidth": 100,
 		"attributePosition": "auto",
 		"bracketSameLine": false,

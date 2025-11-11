@@ -47,7 +47,7 @@ export function Footer() {
 						{sections.map((section) => (
 							<section key={section.header}>
 								<h3 className="text-foreground mb-4 font-semibold">{section.header}</h3>
-								<ul role="list" className="space-y-2">
+								<ul className="space-y-2">
 									{section.links.map((link) => (
 										<li key={link.label}>
 											<Link className="text-muted-foreground hover:text-primary" href={link.href}>

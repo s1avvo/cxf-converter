@@ -17,7 +17,7 @@ export function EmailTemplate(
               </tr>`
 				)
 				.join("");
-			return rows + `<tr><td colspan="3" style="height: 12px;"></td></tr>`;
+			return `${rows} + <tr><td colspan="3" style="height: 12px;"></td></tr>`;
 		})
 		.join("");
 

@@ -1,11 +1,10 @@
 "use client";
 
-import { Copy } from "lucide-react";
 import { Button } from "@ui/shadcn/button";
-import { Separator } from "@/ui/shadcn/separator";
-import { FileUpload } from "@/ui/file-upload";
-
+import { Copy } from "lucide-react";
 import { useConverter } from "@/context/convert-provider";
+import { FileUpload } from "@/ui/file-upload";
+import { Separator } from "@/ui/shadcn/separator";
 
 export function HeroSection() {
 	const { colorResult, setColorResult } = useConverter();
@@ -40,7 +39,7 @@ export function HeroSection() {
 
 									<ul>
 										{color.result.map((color, index) => (
-											<li key={index} className="flex items-start">
+											<li key={`${color.value}-${index}`} className="flex items-start">
 												<div className="flex-1 space-y-2">
 													<div className="flex items-end justify-between">
 														<div>
