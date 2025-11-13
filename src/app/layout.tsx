@@ -27,7 +27,7 @@ export default function RootLayout({
 		<html lang="en" className={`${dmSans.variable} antialiased`}>
 			<body className="font-dm-sans min-h-full flex-col">
 				<Header />
-				<Suspense fallback={<div className="mt-20 text-center">Loading...</div>}>
+				<Suspense>
 					<ConverterProvider>{children}</ConverterProvider>
 				</Suspense>
 				<Footer />
