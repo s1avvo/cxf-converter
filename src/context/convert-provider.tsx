@@ -41,7 +41,7 @@ export function ConverterProvider({ children }: { children: ReactNode }) {
 
 		if (result && result.length > 0) {
 			const encoded = encodeResults(result);
-			params.set(RESULTS_PARAM, encoded);
+			encoded.length < 2000 ? params.set(RESULTS_PARAM, encoded) : params.delete(RESULTS_PARAM);
 		} else {
 			params.delete(RESULTS_PARAM);
 		}
