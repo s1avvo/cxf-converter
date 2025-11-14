@@ -95,7 +95,7 @@ export function ContactSection() {
 									<span className="flex items-start">
 										<Label htmlFor="privacy" className="text-foreground inline text-sm font-normal">
 											By selecting this you agree to our{" "}
-											<Link href="#" className="inline font-medium underline">
+											<Link href="/policy" className="inline font-medium underline">
 												Privacy Policy
 											</Link>
 										</Label>
