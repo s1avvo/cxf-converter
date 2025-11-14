@@ -16,8 +16,7 @@ export function HeroSection() {
 				<header className="mb-12 text-center md:mb-16">
 					<h1 className="gradient-text mb-6 text-5xl font-bold md:text-6xl">CxF Converter</h1>
 					<p className="text-muted-foreground mx-auto max-w-3xl text-xl">
-						Convert CxF to CMYK, sRGB, OKLab, OKLch and HEX formats for different measurement
-						conditions included in the file
+						Convert CxF files to CMYK, sRGB, OKLab, OKLch, and HEX color spaces online.
 					</p>
 				</header>
 
