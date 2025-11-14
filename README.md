@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CxF Converter
 
-## Getting Started
+Convert spectral color data from CxF (Color Exchange Format) files into multiple color spaces including sRGB, CMYK, CIELab, OKLab, OKLCH, and HEX. Upload a .cxf file, visualize swatches, copy values with one click, and optionally email the results.
 
-First, run the development server:
+## Features
+- CxF (.cxf XML) parsing with spectral normalization
+- Accurate color conversions: sRGB, CMYK, CIELab, OKLab, OKLCH, HEX
+- Illuminants and observers: D50/D65 and 2°/10° supported
+- Bradford chromatic adaptation for illuminant changes
+- Result sharing via URL encoding and convenient copy-to-clipboard
+- Optional email delivery of results via Resend
+
+## Tech stack
+- Next.js 16 and React 19
+- Tailwind CSS 4, Radix UI, shadcn/ui components
+- fast-xml-parser, mathjs, zod
+- lucide-react icons, next-themes
+
+## Getting started
+Prerequisites: Node.js 18+ and npm.
+
+Install dependencies and run the dev server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
+1) Upload a .cxf file (drag-and-drop or choose file)
+2) Review converted values and color swatches
+3) Copy values or click Send Results to email them
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
+To enable emailing via Resend, add a .env.local file:
 
-## Learn More
+```ini
+RESEND_API_KEY=your_resend_api_key
+```
 
-To learn more about Next.js, take a look at the following resources:
+If not set, the app runs normally but email sending will fail gracefully.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
+- npm run dev: Start development server
+- npm run build: Build for production
+- npm run start: Run production server
+- npm run lint: Biome checks
+- npm run format: Format with Biome
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How it works (high level)
+- Parses CxF objects of type Target/Standard and reads ReflectanceSpectrum data
+- Normalizes spectra to a standard range and step, then computes XYZ using reference illuminants and observers
+- Applies chromatic adaptation (Bradford) when needed and derives sRGB, CIELab, OKLab/OKLCH; computes CMYK and HEX from sRGB
 
-## Deploy on Vercel
+## Notes
+- Data conversion is performed client-side; files are not uploaded to a server for processing
+- Emailing results sends the converted JSON payload to Resend only when you submit the form
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Acknowledgements
+- CIE standard observer functions and reference illuminants data tables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+No license specified yet.
