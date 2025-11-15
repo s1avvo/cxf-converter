@@ -1,6 +1,6 @@
-export function EmailTemplate(
-	results: { name: string; result: { space: string; value: string }[] }[]
-) {
+import type { ConversionResult } from "@/lib/types";
+
+export function EmailTemplate(results: ConversionResult[]) {
 	const tableRows = results
 		.map((color) => {
 			const rows = color.result
@@ -17,7 +17,8 @@ export function EmailTemplate(
               </tr>`
 				)
 				.join("");
-			return rows + `<tr><td colspan="3" style="height: 12px;"></td></tr>`;
+			const spacerRow = `<tr><td colspan="3" style="height: 12px;"></td></tr>`;
+			return `${rows}${spacerRow}`;
 		})
 		.join("");
 

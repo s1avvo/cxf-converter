@@ -3,7 +3,7 @@ import { XMLParser } from "fast-xml-parser";
 import { diag, type Matrix, multiply, pinv } from "mathjs";
 import { twMerge } from "tailwind-merge";
 import { ADAPTATIONS, ILLUMINANTS } from "@/lib/constant";
-import type { Illuminants, Observers } from "@/lib/types";
+import type { ConversionResult, Illuminants, Observers } from "@/lib/types";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -22,6 +22,27 @@ export const parseXML = <T>(xml: string): T => {
 
 	return parser.parse(xml) as T;
 };
+
+export function encodeResults(results: ConversionResult[]): string {
+	try {
+		const json = JSON.stringify(results);
+		const encoded = btoa(String.fromCharCode(...new TextEncoder().encode(json)));
+		return encoded;
+	} catch {
+		return "";
+	}
+}
+
+export function decodeResults(encoded: string): ConversionResult[] | null {
+	try {
+		const bytes = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
+		const json = new TextDecoder().decode(bytes);
+		const parsed = JSON.parse(json);
+		return Array.isArray(parsed) ? (parsed as ConversionResult[]) : null;
+	} catch {
+		return null;
+	}
+}
 
 /** Tworzy macierz adaptacji barwnej */
 function getAdaptationMatrix(wpSrc: Illuminants, wpDst: Illuminants, observer: Observers) {

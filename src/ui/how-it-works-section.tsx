@@ -1,5 +1,5 @@
-import { Upload, Play, BarChart3, MailCheck } from "lucide-react";
 import { Card, CardContent } from "@ui/shadcn/card";
+import { BarChart3, MailCheck, Play, Upload } from "lucide-react";
 
 const steps = [
 	{
@@ -47,7 +47,7 @@ export function HowItWorksSection() {
 
 				<ol className="grid grid-cols-1 items-stretch gap-8 md:grid-cols-2 lg:grid-cols-4">
 					{steps.map((step, index) => (
-						<li key={index}>
+						<li key={`${step.color}-${index}`}>
 							<Card className="bg-card border-border group relative h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
 								<div
 									className={`absolute inset-0 ${step.gradientClass} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}

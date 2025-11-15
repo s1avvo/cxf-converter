@@ -1,4 +1,4 @@
-import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from "@ui/shadcn/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@ui/shadcn/accordion";
 
 const faqs = [
 	{
@@ -43,7 +43,7 @@ export function FaqSection() {
 				<div className="mx-auto max-w-3xl">
 					<Accordion type="multiple">
 						{faqs.map((faq, index) => (
-							<AccordionItem key={index} value={`item-${index}`}>
+							<AccordionItem key={`key-${faq.question.length}-${index}`} value={`item-${index}`}>
 								<AccordionTrigger className="text-foreground text-left font-semibold">
 									{faq.question}
 								</AccordionTrigger>

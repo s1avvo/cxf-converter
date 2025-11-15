@@ -1,8 +1,3 @@
-/**
- * CxF Color Converter
- * Main entry point for converting CxF spectral data to various color spaces
- */
-
 import { round } from "mathjs";
 import {
 	oklabToOklch,
@@ -14,15 +9,9 @@ import {
 	xyzToSRGB,
 } from "@/lib/color-conversions";
 import { getSpectrumFromCxF } from "@/lib/cxf-parser";
-import type { ConversionResult } from "@/lib/types";
+import type { ConversionResult, CxFFile } from "@/lib/types";
+import { parseXML } from "@/lib/utils";
 
-// Re-export commonly used color conversion functions
-export { oklabToOklch, xyzToOklab } from "@/lib/color-conversions";
-export { getSpectrumFromCxF } from "@/lib/cxf-parser";
-
-/**
- * Format color values for display
- */
 function formatColorValues(
 	srgb: { r: number; g: number; b: number },
 	cmyk: { c: number; m: number; y: number; k: number },
@@ -59,17 +48,14 @@ function formatColorValues(
 	];
 }
 
-/**
- * Convert CxF spectral data to multiple color spaces
- * @param cxfFileContent - CxF XML file content as string
- * @returns Array of conversion results with color values in different spaces
- */
 export function cxfConverter(cxfFileContent: string): ConversionResult[] {
-	if (!cxfFileContent) {
-		throw new Error("No CxF data provided");
+	const cxf = parseXML<CxFFile>(cxfFileContent);
+
+	if (!cxf) {
+		throw new Error("Failed to parse CxF file.");
 	}
 
-	const spectra = getSpectrumFromCxF(cxfFileContent);
+	const spectra = getSpectrumFromCxF(cxf);
 
 	return spectra.map((spectrum) => {
 		// Convert spectrum to XYZ tristimulus values

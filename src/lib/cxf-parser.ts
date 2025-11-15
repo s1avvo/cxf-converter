@@ -1,8 +1,3 @@
-/**
- * CxF (Color Exchange Format) file parsing utilities
- * Handles parsing and normalization of spectral data from CxF XML files
- */
-
 import { floor, round } from "mathjs";
 import type {
 	CxFFile,
@@ -11,7 +6,6 @@ import type {
 	ParsedSpectrum,
 	ReflectanceSpectrum,
 } from "@/lib/types";
-import { parseXML } from "@/lib/utils";
 
 /** Spectral range constants */
 const MIN_WAVELENGTH = 340;
@@ -66,9 +60,7 @@ function normalizeSpectrum(
 /**
  * Extract and parse spectral data from CxF file
  */
-export function getSpectrumFromCxF(cxfFileContent: string): ParsedSpectrum[] {
-	const cxf = parseXML<CxFFile>(cxfFileContent);
-
+export function getSpectrumFromCxF(cxf: CxFFile): ParsedSpectrum[] {
 	const objectCollection = cxf["cc:CxF"]["cc:Resources"]?.["cc:ObjectCollection"];
 
 	if (!objectCollection) {

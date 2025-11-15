@@ -1,18 +1,17 @@
 "use client";
 
-import { Mail, AlertCircle } from "lucide-react";
-import { useActionState } from "react";
-import Link from "next/link";
-import { toast } from "sonner";
-import type { ContactFormData, ContactFormState } from "@/lib/schema";
-
 import { Button } from "@ui/shadcn/button";
+import { Checkbox } from "@ui/shadcn/checkbox";
 import { Input } from "@ui/shadcn/input";
 import { Label } from "@ui/shadcn/label";
-import { Checkbox } from "@ui/shadcn/checkbox";
+import { AlertCircle, Mail } from "lucide-react";
+import Link from "next/link";
+import { useActionState } from "react";
+import { toast } from "sonner";
+import { submitColorResult } from "@/actions/submit-color-result";
 
 import { useConverter } from "@/context/convert-provider";
-import { submitColorResult } from "@/actions/submit-color-result";
+import type { ContactFormData, ContactFormState } from "@/lib/schema";
 
 const INITIAL_DATA: ContactFormData = {
 	email: "",
@@ -96,7 +95,12 @@ export function ContactSection() {
 									<span className="flex items-start">
 										<Label htmlFor="privacy" className="text-foreground inline text-sm font-normal">
 											By selecting this you agree to our{" "}
-											<Link href="#" className="inline font-medium underline">
+											<Link
+												href="/policy"
+												className="inline font-medium underline"
+												target="_blank"
+												rel="noopener noreferrer"
+											>
 												Privacy Policy
 											</Link>
 										</Label>

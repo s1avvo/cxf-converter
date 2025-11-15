@@ -1,20 +1,20 @@
 "use client";
 
-import { File, Upload, Trash, Play } from "lucide-react";
-import React, { useState } from "react";
+import { Button } from "@ui/shadcn/button";
+import { Card, CardContent } from "@ui/shadcn/card";
+import { File, Play, Trash, Upload } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import type { FileWithPath } from "react-dropzone";
 import Dropzone from "react-dropzone";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-
-import { Card, CardContent } from "@ui/shadcn/card";
-import { Button } from "@ui/shadcn/button";
-
-import { useConverter } from "@/context/convert-provider";
 import { cxfConverter } from "@/actions/cxf-converter";
+import { useConverter } from "@/context/convert-provider";
+import { cn } from "@/lib/utils";
 
 export function FileUpload() {
 	const { setColorResult } = useConverter();
-	const [file, setFile] = useState<File>();
+	const [file, setFile] = useState<FileWithPath>();
 
 	const handleFile = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -24,11 +24,15 @@ export function FileUpload() {
 			return;
 		}
 
-		const data = new FormData();
-		data.append("file", file);
-
-		const converterResult = cxfConverter(await file.text());
-		setColorResult(converterResult);
+		try {
+			const converterResult = cxfConverter(await file.text());
+			setColorResult(converterResult);
+			toast.success("Conversion completed");
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Please ensure the CxF file is valid.";
+			toast.error(message);
+		}
 	};
 
 	return (
@@ -69,8 +73,8 @@ export function FileUpload() {
 
 							{file && (
 								<div>
-									<h4 className="text-foreground mt-6 font-medium">File(s) to upload</h4>
-									<ul role="list" className="mt-4 space-y-4">
+									<h4 className="text-foreground mt-6 font-medium">File to upload</h4>
+									<ul className="mt-4 space-y-4">
 										<li key={file.name} className="relative">
 											<Card className="relative p-4">
 												<div className="absolute top-1/2 right-4 -translate-y-1/2">

@@ -7,11 +7,11 @@ const sections = [
 		links: [
 			{
 				label: "How It Works",
-				href: "https://cxf-converter.vercel.app/#how-it-works",
+				href: "#how-it-works",
 			},
 			{
 				label: "FAQ",
-				href: "https://cxf-converter.vercel.app/#faq",
+				href: "#faq",
 			},
 		],
 	},
@@ -20,11 +20,7 @@ const sections = [
 		links: [
 			{
 				label: "Privacy Policy",
-				href: "https://cxf-converter.vercel.app/privacy-policy",
-			},
-			{
-				label: "Terms of Service",
-				href: "https://cxf-converter.vercel.app/terms-of-service",
+				href: "/policy",
 			},
 		],
 	},
@@ -47,7 +43,7 @@ export function Footer() {
 						{sections.map((section) => (
 							<section key={section.header}>
 								<h3 className="text-foreground mb-4 font-semibold">{section.header}</h3>
-								<ul role="list" className="space-y-2">
+								<ul className="space-y-2">
 									{section.links.map((link) => (
 										<li key={link.label}>
 											<Link className="text-muted-foreground hover:text-primary" href={link.href}>
