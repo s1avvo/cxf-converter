@@ -24,11 +24,15 @@ export function FileUpload() {
 			return;
 		}
 
-		const data = new FormData();
-		data.append("file", file);
-
-		const converterResult = cxfConverter(await file.text());
-		setColorResult(converterResult);
+		try {
+			const converterResult = cxfConverter(await file.text());
+			setColorResult(converterResult);
+			toast.success("Conversion completed");
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Please ensure the CxF file is valid.";
+			toast.error(message);
+		}
 	};
 
 	return (
