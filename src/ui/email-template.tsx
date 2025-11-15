@@ -17,7 +17,8 @@ export function EmailTemplate(results: ConversionResult[]) {
               </tr>`
 				)
 				.join("");
-			return `${rows} + <tr><td colspan="3" style="height: 12px;"></td></tr>`;
+			const spacerRow = `<tr><td colspan="3" style="height: 12px;"></td></tr>`;
+			return `${rows}${spacerRow}`;
 		})
 		.join("");
 
