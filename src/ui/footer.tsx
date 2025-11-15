@@ -7,11 +7,11 @@ const sections = [
 		links: [
 			{
 				label: "How It Works",
-				href: "https://cxf-converter.vercel.app/#how-it-works",
+				href: "#how-it-works",
 			},
 			{
 				label: "FAQ",
-				href: "https://cxf-converter.vercel.app/#faq",
+				href: "#faq",
 			},
 		],
 	},
@@ -20,11 +20,7 @@ const sections = [
 		links: [
 			{
 				label: "Privacy Policy",
-				href: "https://cxf-converter.vercel.app/privacy-policy",
-			},
-			{
-				label: "Terms of Service",
-				href: "https://cxf-converter.vercel.app/terms-of-service",
+				href: "/policy",
 			},
 		],
 	},
