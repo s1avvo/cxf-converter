@@ -12,9 +12,8 @@ Convert spectral color data from CxF (Color Exchange Format) files into multiple
 
 ## Tech stack
 - Next.js 16 and React 19
-- Tailwind CSS 4, Radix UI, shadcn/ui components
+- Tailwind, shadcn/ui
 - fast-xml-parser, mathjs, zod
-- lucide-react icons, next-themes
 
 ## Getting started
 Prerequisites: Node.js 18+ and npm.
@@ -53,13 +52,3 @@ If not set, the app runs normally but email sending will fail gracefully.
 - Parses CxF objects of type Target/Standard and reads ReflectanceSpectrum data
 - Normalizes spectra to a standard range and step, then computes XYZ using reference illuminants and observers
 - Applies chromatic adaptation (Bradford) when needed and derives sRGB, CIELab, OKLab/OKLCH; computes CMYK and HEX from sRGB
-
-## Notes
-- Data conversion is performed client-side; files are not uploaded to a server for processing
-- Emailing results sends the converted JSON payload to Resend only when you submit the form
-
-## Acknowledgements
-- CIE standard observer functions and reference illuminants data tables
-
-## License
-No license specified yet.
