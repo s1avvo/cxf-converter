@@ -64,7 +64,7 @@ export function getSpectrumFromCxF(cxf: CxFFile): ParsedSpectrum[] {
 	const objectCollection = cxf["cc:CxF"]["cc:Resources"]?.["cc:ObjectCollection"];
 
 	if (!objectCollection) {
-		throw new Error("No ObjectCollection found in CxF file");
+		throw new Error("No color objects described in CxF file");
 	}
 
 	// Handle both single object and array of objects
@@ -101,12 +101,15 @@ export function getSpectrumFromCxF(cxf: CxFFile): ParsedSpectrum[] {
 		throw new Error("No spectrum data found in CxF file");
 	}
 
-	const colorSpecs =
-		cxf["cc:CxF"]["cc:Resources"]?.["cc:ColorSpecificationCollection"]?.["cc:ColorSpecification"];
+	const colorSpecsCollection = cxf["cc:CxF"]["cc:Resources"]?.["cc:ColorSpecificationCollection"];
 
-	if (!colorSpecs) {
+	if (!colorSpecsCollection) {
 		throw new Error("No color specifications found in CxF file");
 	}
+
+	const colorSpecs = Array.isArray(colorSpecsCollection["cc:ColorSpecification"])
+		? colorSpecsCollection["cc:ColorSpecification"]
+		: [colorSpecsCollection["cc:ColorSpecification"]];
 
 	// Process each spectrum with its corresponding specification
 	const results = allReflectanceSpectra
@@ -114,7 +117,7 @@ export function getSpectrumFromCxF(cxf: CxFFile): ParsedSpectrum[] {
 			const spec = colorSpecs.find((s) => s["@_Id"] === colorSpecId);
 
 			if (!spec) {
-				console.warn(`Color specification not found for ID: ${colorSpecId}`);
+				console.warn(`Color specification not found for color ID: ${colorSpecId}`);
 				return null;
 			}
 
